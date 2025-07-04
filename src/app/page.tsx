@@ -73,13 +73,20 @@ export default function HomePage() {
 
   const fetchDomains = async () => {
     try {
+      console.log('🔄 Fetching domains from API...')
       const response = await fetch('/api/domains')
+      console.log('📡 API Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Domains fetched:', data.length)
+        console.log('📊 Data:', data)
         setDomains(data)
+      } else {
+        console.error('❌ API Error:', response.status, response.statusText)
       }
     } catch (error) {
-      console.error('Error fetching domains:', error)
+      console.error('🚨 Fetch Error:', error)
     } finally {
       setLoading(false)
     }
@@ -177,6 +184,27 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Debug Information */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+            <h3 className="font-semibold text-yellow-800 mb-2">🔍 Debug Information</h3>
+            <p className="text-sm text-yellow-700">
+              Total domains: {domains.length} | 
+              Active: {activeDomains.length} | 
+              Trashed: {trashedDomains.length} | 
+              Loading: {loading ? 'true' : 'false'}
+            </p>
+            {domains.length > 0 && (
+              <details className="mt-2">
+                <summary className="text-sm text-yellow-700 cursor-pointer">Raw Data</summary>
+                <pre className="text-xs text-yellow-600 mt-2 overflow-auto">
+                  {JSON.stringify(domains, null, 2)}
+                </pre>
+              </details>
+            )}
+          </div>
+        )}
+
         {/* Active Domains Section */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">

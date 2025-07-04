@@ -5,12 +5,7 @@ import prisma from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // ไม่ต้อง check session สำหรับหน้าแรก - ให้ทุกคนดูได้
     const domains = await prisma.domain.findMany({
       include: {
         domainRequest: {
