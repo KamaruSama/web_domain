@@ -1,6 +1,6 @@
-// postcss.config.mjs
+/** @type {import('tailwindcss').Config} */
 export default {
   plugins: {
-    "@tailwindcss/postcss": {},   // ให้ PostCSS เรียก Tailwind engine
+    '@tailwindcss/postcss': {},
   },
 };
