@@ -5,8 +5,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Lock, Key, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
-import LogoutButton from '@/components/LogoutButton'
 
 export default function ChangePasswordPage() {
   const { data: session } = useSession()
@@ -110,45 +110,8 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Key className="w-6 h-6 mr-2 text-blue-600" />
-                เปลี่ยนรหัสผ่าน
-              </h1>
-              <p className="text-gray-600">อัปเดตรหัสผ่านของคุณ</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                หน้าแรก
-              </Link>
-              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
-                คำขอของฉัน
-              </Link>
-              {session.user.role === 'ADMIN' && (
-                <>
-                  <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
-                    จัดการคำขอต่ออายุ
-                  </Link>
-                  <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                    จัดการระบบ
-                  </Link>
-                </>
-              )}
-              <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
-                เปลี่ยนรหัสผ่าน
-              </Link>
-              <span className="text-sm text-gray-700">
-                สวัสดี, {session.user.username}
-              </span>
-              <LogoutButton className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors" />
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <NavigationBar />
 
       {/* Main Content */}
       <main className="max-w-md mx-auto px-4 py-8">

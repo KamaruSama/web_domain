@@ -19,7 +19,7 @@ import {
   RotateCcw,
   Plus
 } from 'lucide-react'
-import LogoutButton from '@/components/LogoutButton'
+import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
 
 interface Domain {
@@ -73,6 +73,16 @@ export default function HomePage() {
   const [showRenewalModal, setShowRenewalModal] = useState(false)
   const [showRequestModal, setShowRequestModal] = useState(false)
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null)
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'ALL',
+    durationType: 'ALL',
+    sortBy: 'requestedAt',
+    sortOrder: 'desc'
+  })
+  
   const [restoreData, setRestoreData] = useState({
     durationType: 'PERMANENT',
     expiresAt: ''
@@ -380,9 +390,53 @@ export default function HomePage() {
     }))
   }
 
-  const activeDomains = domains.filter(d => d.status === 'ACTIVE')
-  const expiredDomains = domains.filter(d => d.status === 'EXPIRED')
-  const trashedDomains = domains.filter(d => d.status === 'TRASHED')
+  // Filter and sort domains
+  const filteredDomains = domains.filter(domain => {
+    const matchesSearch = domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
+                         domain.domainRequest.requesterName.toLowerCase().includes(filters.search.toLowerCase()) ||
+                         domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
+    
+    const matchesStatus = filters.status === 'ALL' || domain.status === filters.status
+    const matchesDurationType = filters.durationType === 'ALL' || domain.domainRequest.durationType === filters.durationType
+    
+    return matchesSearch && matchesStatus && matchesDurationType
+  }).sort((a, b) => {
+    const field = filters.sortBy
+    let aValue = ''
+    let bValue = ''
+    
+    switch (field) {
+      case 'domain':
+        aValue = a.domainRequest.domain
+        bValue = b.domainRequest.domain
+        break
+      case 'requesterName':
+        aValue = a.domainRequest.requesterName
+        bValue = b.domainRequest.requesterName
+        break
+      case 'department':
+        aValue = a.domainRequest.department
+        bValue = b.domainRequest.department
+        break
+      case 'requestedAt':
+        aValue = a.domainRequest.requestedAt
+        bValue = b.domainRequest.requestedAt
+        break
+      default:
+        aValue = a.domainRequest.requestedAt
+        bValue = b.domainRequest.requestedAt
+    }
+    
+    if (filters.sortOrder === 'asc') {
+      return aValue.localeCompare(bValue)
+    } else {
+      return bValue.localeCompare(aValue)
+    }
+  })
+
+  const activeDomains = filteredDomains.filter(d => d.status === 'ACTIVE')
+  const expiredDomains = filteredDomains.filter(d => d.status === 'EXPIRED')
+  const trashedDomains = filteredDomains.filter(d => d.status === 'TRASHED')
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('th-TH', {
@@ -415,56 +469,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">ระบบขอใช้โดเมน</h1>
-              <p className="text-gray-600">มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {session ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-700">
-                    สวัสดี, {session.user.username}
-                  </span>
-                  <div className="flex space-x-2">
-                    {/* Navigation buttons */}
-                    <Link
-                      href="/my-tickets"
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      คำขอของฉัน
-                    </Link>
-                    {session.user.role === 'ADMIN' && (
-                      <Link
-                        href="/admin"
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                      >
-                        จัดการระบบ
-                      </Link>
-                    )}
-                    <Link
-                      href="/change-password"
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      เปลี่ยนรหัสผ่าน
-                    </Link>
-                    <LogoutButton className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors" />
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  เข้าสู่ระบบ
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <NavigationBar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -485,6 +490,101 @@ export default function HomePage() {
             </button>
           </div>
         )}
+
+        {/* Filter Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">กรองข้อมูล</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Search */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ค้นหา
+              </label>
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                placeholder="ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                สถานะ
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">ทั้งหมด</option>
+                <option value="ACTIVE">ใช้งาน</option>
+                <option value="EXPIRED">หมดอายุ</option>
+                {session?.user.role === 'ADMIN' && <option value="TRASHED">ในถังขยะ</option>}
+              </select>
+            </div>
+
+            {/* Duration Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ประเภท
+              </label>
+              <select
+                value={filters.durationType}
+                onChange={(e) => setFilters(prev => ({ ...prev, durationType: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">ทั้งหมด</option>
+                <option value="PERMANENT">ถาวร</option>
+                <option value="TEMPORARY">ชั่วคราว</option>
+              </select>
+            </div>
+
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เรียงตาม
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="requestedAt">วันที่ขอ</option>
+                <option value="domain">ชื่อโดเมน</option>
+                <option value="requesterName">ผู้ขอ</option>
+                <option value="department">หน่วยงาน</option>
+              </select>
+            </div>
+
+            {/* Sort Order */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ลำดับ
+              </label>
+              <select
+                value={filters.sortOrder}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="desc">ใหม่ไปเก่า</option>
+                <option value="asc">เก่าไปใหม่</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Results Summary */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              แสดงผล {filteredDomains.length} จาก {domains.length} รายการ
+              {filters.search && ` | ค้นหา: "${filters.search}"`}
+              {filters.status !== 'ALL' && ` | สถานะ: ${filters.status}`}
+              {filters.durationType !== 'ALL' && ` | ประเภท: ${filters.durationType}`}
+            </p>
+          </div>
+        </div>
 
         {/* Request Form Button for non-logged in users */}
         {!session && (
@@ -851,10 +951,13 @@ export default function HomePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">-- เลือกโดเมน --</option>
-                  {[...activeDomains, ...expiredDomains].map((domain) => (
+                  {[...activeDomains, ...expiredDomains, ...trashedDomains]
+                    .filter(domain => domain.domainRequest.durationType !== 'PERMANENT') // ไม่แสดงโดเมนถาวร
+                    .map((domain) => (
                     <option key={domain.id} value={domain.id}>
                       {domain.domainRequest.domain} 
                       {domain.status === 'EXPIRED' ? ' (หมดอายุ)' : ''}
+                      {domain.status === 'TRASHED' ? ' (ในถังขยะ)' : ''}
                     </option>
                   ))}
                 </select>

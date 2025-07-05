@@ -80,10 +80,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'คุณไม่มีสิทธิ์ในการต่ออายุโดเมนนี้' }, { status: 403 })
     }
 
-    // Check if domain is temporary
-    if (domain.domainRequest.durationType !== 'TEMPORARY') {
-      return NextResponse.json({ error: 'สามารถต่ออายุได้เฉพาะโดเมนชั่วคราวเท่านั้น' }, { status: 400 })
-    }
+    // Skip permanent domain check - allow renewal for all domains now
+    // Previously: Check if domain is temporary
+    // if (domain.domainRequest.durationType !== 'TEMPORARY') {
+    //   return NextResponse.json({ error: 'สามารถต่ออายุได้เฉพาะโดเมนชั่วคราวเท่านั้น' }, { status: 400 })
+    // }
 
     // Validate expiry date
     const expiryDate = new Date(newExpiryDate)

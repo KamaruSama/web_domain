@@ -14,6 +14,7 @@ import {
   FileText,
   AlertCircle
 } from 'lucide-react'
+import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
 
 interface RenewalRequest {
@@ -61,14 +62,20 @@ export default function RenewalManagementPage() {
   const router = useRouter()
   const [renewalRequests, setRenewalRequests] = useState<RenewalRequest[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'ALL',
+    sortBy: 'requestedAt',
+    sortOrder: 'desc'
+  })
 
   useEffect(() => {
-    if (session?.user.role !== 'ADMIN') {
-      router.push('/')
-      return
+    if (session) {
+      fetchRenewalRequests()
     }
-    fetchRenewalRequests()
-  }, [session, router])
+  }, [session])
 
   const fetchRenewalRequests = async () => {
     try {
@@ -81,6 +88,27 @@ export default function RenewalManagementPage() {
       console.error('Error fetching renewal requests:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteRenewalRequest = async (renewalId: string) => {
+    if (!confirm('คุณต้องการลบคำขอต่ออายุนี้ใช่หรือไม่?')) return
+
+    try {
+      const response = await fetch(`/api/renewal-requests/${renewalId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        alert('ลบคำขอต่ออายุสำเร็จ')
+        fetchRenewalRequests()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'เกิดข้อผิดพลาดในการลบคำขอต่ออายุ')
+      }
+    } catch (error) {
+      console.error('Error deleting renewal request:', error)
+      alert('เกิดข้อผิดพลาดในการลบคำขอต่ออายุ')
     }
   }
 
@@ -134,9 +162,52 @@ export default function RenewalManagementPage() {
     })
   }
 
-  const pendingRequests = renewalRequests.filter(r => r.status === 'PENDING')
-  const approvedRequests = renewalRequests.filter(r => r.status === 'APPROVED')
-  const rejectedRequests = renewalRequests.filter(r => r.status === 'REJECTED')
+  // Filter and sort renewal requests
+  const filteredRequests = renewalRequests.filter(request => {
+    const matchesSearch = request.domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
+                         request.user.username.toLowerCase().includes(filters.search.toLowerCase()) ||
+                         request.domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
+    
+    const matchesStatus = filters.status === 'ALL' || request.status === filters.status
+    
+    return matchesSearch && matchesStatus
+  }).sort((a, b) => {
+    const field = filters.sortBy
+    let aValue = ''
+    let bValue = ''
+    
+    switch (field) {
+      case 'domain':
+        aValue = a.domain.domainRequest.domain
+        bValue = b.domain.domainRequest.domain
+        break
+      case 'username':
+        aValue = a.user.username
+        bValue = b.user.username
+        break
+      case 'requestedAt':
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+        break
+      case 'newExpiryDate':
+        aValue = a.newExpiryDate
+        bValue = b.newExpiryDate
+        break
+      default:
+        aValue = a.requestedAt
+        bValue = b.requestedAt
+    }
+    
+    if (filters.sortOrder === 'asc') {
+      return aValue.localeCompare(bValue)
+    } else {
+      return bValue.localeCompare(aValue)
+    }
+  })
+
+  const pendingRequests = filteredRequests.filter(r => r.status === 'PENDING')
+  const approvedRequests = filteredRequests.filter(r => r.status === 'APPROVED')
+  const rejectedRequests = filteredRequests.filter(r => r.status === 'REJECTED')
 
   if (!session) {
     return (
@@ -146,20 +217,6 @@ export default function RenewalManagementPage() {
           <p className="text-gray-600 mb-4">กรุณาเข้าสู่ระบบ</p>
           <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             เข้าสู่ระบบ
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  if (session.user.role !== 'ADMIN') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</p>
-          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            กลับหน้าหลัก
           </Link>
         </div>
       </div>
@@ -179,44 +236,89 @@ export default function RenewalManagementPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                จัดการคำขอต่ออายุ
-              </h1>
-              <p className="text-gray-600">
-                อนุมัติ/ไม่อนุมัติคำขอต่ออายุโดเมน
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                หน้าแรก
-              </Link>
-              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
-                คำขอทั้งหมด
-              </Link>
-              <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
-                จัดการคำขอต่ออายุ
-              </Link>
-              <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                จัดการระบบ
-              </Link>
-              <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
-                เปลี่ยนรหัสผ่าน
-              </Link>
-              <span className="text-sm text-gray-700">
-                สวัสดี, {session.user.username}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <NavigationBar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Filter Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">กรองข้อมูล</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ค้นหา
+              </label>
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                placeholder="ชื่อโดเมน, ผู้ขอ, หน่วยงาน..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                สถานะ
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">ทั้งหมด</option>
+                <option value="PENDING">รอพิจารณา</option>
+                <option value="APPROVED">อนุมัติ</option>
+                <option value="REJECTED">ปฏิเสธ</option>
+              </select>
+            </div>
+
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เรียงตาม
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="requestedAt">วันที่ขอ</option>
+                <option value="domain">ชื่อโดเมน</option>
+                <option value="username">ผู้ขอ</option>
+                <option value="newExpiryDate">วันหมดอายุใหม่</option>
+              </select>
+            </div>
+
+            {/* Sort Order */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ลำดับ
+              </label>
+              <select
+                value={filters.sortOrder}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="desc">ใหม่ไปเก่า</option>
+                <option value="asc">เก่าไปใหม่</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Results Summary */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              แสดงผล {filteredRequests.length} จาก {renewalRequests.length} รายการ
+              {filters.search && ` | ค้นหา: "${filters.search}"`}
+              {filters.status !== 'ALL' && ` | สถานะ: ${filters.status}`}
+            </p>
+          </div>
+        </div>
+        
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-md p-6">

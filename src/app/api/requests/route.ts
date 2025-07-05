@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!domain || !purpose || !ipAddress || !requesterName || !responsibleName || !department || !contact) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบถ้วน' }, { status: 400 })
     }
 
     // Check if domain already exists
@@ -66,7 +66,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingDomain) {
-      return NextResponse.json({ error: 'Domain already requested' }, { status: 400 })
+      return NextResponse.json({ error: 'โดเมนนี้ถูกขอใช้งานแล้ว' }, { status: 400 })
+    }
+
+    // Check if IP address already exists
+    const existingIP = await prisma.domainRequest.findFirst({
+      where: {
+        ipAddress: ipAddress
+      }
+    })
+
+    if (existingIP) {
+      return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 })
     }
 
     const requestData: any = {
@@ -85,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Handle expiry date for temporary domains
     if (durationType === 'TEMPORARY') {
       if (!expiresAt) {
-        return NextResponse.json({ error: 'Expiry date required for temporary domains' }, { status: 400 })
+        return NextResponse.json({ error: 'กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว' }, { status: 400 })
       }
       requestData.expiresAt = new Date(expiresAt)
     }

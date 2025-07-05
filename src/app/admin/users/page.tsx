@@ -19,8 +19,8 @@ import {
   Key,
   RotateCcw
 } from 'lucide-react'
+import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
-import LogoutButton from '@/components/LogoutButton'
 
 interface User {
   id: string
@@ -37,6 +37,14 @@ export default function UsersManagementPage() {
   const [showAddUser, setShowAddUser] = useState(false)
   const [newUser, setNewUser] = useState({ username: '', role: 'USER' })
   const [generatedPassword, setGeneratedPassword] = useState('')
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    search: '',
+    role: 'ALL',
+    sortBy: 'createdAt',
+    sortOrder: 'desc'
+  })
 
   useEffect(() => {
     if (session?.user.role !== 'ADMIN') {
@@ -195,6 +203,42 @@ export default function UsersManagementPage() {
     )
   }
 
+  // Filter and sort users
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.username.toLowerCase().includes(filters.search.toLowerCase())
+    const matchesRole = filters.role === 'ALL' || user.role === filters.role
+    
+    return matchesSearch && matchesRole
+  }).sort((a, b) => {
+    const field = filters.sortBy
+    let aValue = ''
+    let bValue = ''
+    
+    switch (field) {
+      case 'username':
+        aValue = a.username
+        bValue = b.username
+        break
+      case 'role':
+        aValue = a.role
+        bValue = b.role
+        break
+      case 'createdAt':
+        aValue = a.createdAt
+        bValue = b.createdAt
+        break
+      default:
+        aValue = a.createdAt
+        bValue = b.createdAt
+    }
+    
+    if (filters.sortOrder === 'asc') {
+      return aValue.localeCompare(bValue)
+    } else {
+      return bValue.localeCompare(aValue)
+    }
+  })
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -208,54 +252,92 @@ export default function UsersManagementPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Link href="/admin" className="text-gray-600 hover:text-gray-900 mr-4">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Users className="w-6 h-6 mr-2 text-purple-600" />
-                  จัดการผู้ใช้
-                </h1>
-                <p className="text-gray-600">เพิ่ม ลบ และจัดการบัญชีผู้ใช้</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                หน้าแรก
-              </Link>
-              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
-                คำขอทั้งหมด
-              </Link>
-              <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
-                จัดการคำขอต่ออายุ
-              </Link>
-              <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                จัดการระบบ
-              </Link>
-              <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
-                เปลี่ยนรหัสผ่าน
-              </Link>
-              <span className="text-sm text-gray-700">
-                สวัสดี, {session.user.username}
-              </span>
-              <LogoutButton className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors" />
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <NavigationBar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Filter Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">กรองข้อมูล</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ค้นหา
+              </label>
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                placeholder="ชื่อผู้ใช้..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Role Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                บทบาท
+              </label>
+              <select
+                value={filters.role}
+                onChange={(e) => setFilters(prev => ({ ...prev, role: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">ทั้งหมด</option>
+                <option value="ADMIN">Admin</option>
+                <option value="USER">User</option>
+              </select>
+            </div>
+
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                เรียงตาม
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="createdAt">วันที่สร้าง</option>
+                <option value="username">ชื่อผู้ใช้</option>
+                <option value="role">บทบาท</option>
+              </select>
+            </div>
+
+            {/* Sort Order */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ลำดับ
+              </label>
+              <select
+                value={filters.sortOrder}
+                onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="desc">ใหม่ไปเก่า</option>
+                <option value="asc">เก่าไปใหม่</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Results Summary */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              แสดงผล {filteredUsers.length} จาก {users.length} รายการ
+              {filters.search && ` | ค้นหา: "${filters.search}"`}
+              {filters.role !== 'ALL' && ` | บทบาท: ${filters.role}`}
+            </p>
+          </div>
+        </div>
+        
         {/* Users Management */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              รายการผู้ใช้ ({users.length})
+              รายการผู้ใช้ ({filteredUsers.length})
             </h2>
             <button
               onClick={() => setShowAddUser(true)}
@@ -346,7 +428,7 @@ export default function UsersManagementPage() {
 
           {/* Users List */}
           <div className="grid gap-4">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <motion.div
                 key={user.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -416,10 +498,12 @@ export default function UsersManagementPage() {
             ))}
           </div>
 
-          {users.length === 0 && (
+          {filteredUsers.length === 0 && (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">ไม่พบผู้ใช้ในระบบ</p>
+              <p className="text-gray-500">
+                {users.length === 0 ? 'ไม่พบผู้ใช้ในระบบ' : 'ไม่พบผู้ใช้ที่ตรงกับเงื่อนไขการค้นหา'}
+              </p>
             </div>
           )}
         </div>
