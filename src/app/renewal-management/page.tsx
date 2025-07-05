@@ -12,7 +12,12 @@ import {
   Globe,
   User,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Search,
+  Filter,
+  SortAsc,
+  SortDesc,
+  Settings2
 } from 'lucide-react'
 import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
@@ -243,11 +248,15 @@ export default function RenewalManagementPage() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Filter Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">กรองข้อมูล</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <Filter className="w-5 h-5 mr-2 text-blue-600" />
+            กรองข้อมูล
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <Search className="w-4 h-4 mr-1" />
                 ค้นหา
               </label>
               <input
@@ -261,7 +270,8 @@ export default function RenewalManagementPage() {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <Settings2 className="w-4 h-4 mr-1" />
                 สถานะ
               </label>
               <select
@@ -278,7 +288,8 @@ export default function RenewalManagementPage() {
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <SortAsc className="w-4 h-4 mr-1" />
                 เรียงตาม
               </label>
               <select
@@ -295,7 +306,11 @@ export default function RenewalManagementPage() {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                {filters.sortOrder === 'desc' ? 
+                  <SortDesc className="w-4 h-4 mr-1" /> : 
+                  <SortAsc className="w-4 h-4 mr-1" />
+                }
                 ลำดับ
               </label>
               <select
