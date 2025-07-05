@@ -40,7 +40,7 @@ export default function LoginPage() {
       } else {
         router.push('/')
       }
-    } catch (error) {
+    } catch {
       setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
     } finally {
       setLoading(false)

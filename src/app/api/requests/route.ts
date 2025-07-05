@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -80,7 +80,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 })
     }
 
-    const requestData: any = {
+    const requestData: {
+      domain: string;
+      purpose: string;
+      ipAddress: string;
+      requesterName: string;
+      responsibleName: string;
+      department: string;
+      contact: string;
+      contactType: string;
+      durationType: string;
+      userId: string;
+      expiresAt?: Date;
+    } = {
       domain: domain.toLowerCase(),
       purpose,
       ipAddress,

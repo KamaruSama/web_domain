@@ -1,12 +1,10 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
   Users, 
   Globe,
-  Shield,
   AlertCircle,
   ChevronRight,
   Settings,
@@ -18,7 +16,6 @@ import Link from 'next/link'
 
 export default function AdminPage() {
   const { data: session } = useSession()
-  const router = useRouter()
 
   if (!session) {
     return (

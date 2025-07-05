@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { ReactNode } from 'react'
 
 interface PageTransitionProps {
@@ -118,7 +118,7 @@ const StaggerContainer = ({
   )
 }
 
-const StaggerItem = ({ children, index = 0, className = '' }: StaggerItemProps) => {
+const StaggerItem = ({ children, className = '' }: StaggerItemProps) => {
   return (
     <motion.div
       variants={{

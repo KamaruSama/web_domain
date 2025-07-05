@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     console.log('Successfully fetched renewal requests. Count:', renewalRequests.length)
 
     // Manually construct the response to avoid circular dependency issues
-    const responseData = renewalRequests.map((request: any) => ({
+    const responseData = renewalRequests.map((request: { domain: { id: any; domainRequestId: any; lastUsedAt: any; deletedAt: any; trashExpiresAt: any; status: any; domainRequest: any; }; }) => ({
       ...request,
       domain: {
         id: request.domain.id,

@@ -120,7 +120,10 @@ export async function PUT(
       }
 
       // Prepare update data for domain request
-      const updateData: any = {
+      const updateData: {
+        durationType: string;
+        expiresAt: Date | null;
+      } = {
         durationType: durationType || domain.domainRequest.durationType,
         expiresAt: durationType === 'TEMPORARY' ? new Date(expiresAt) : 
                    durationType === 'PERMANENT' ? null : domain.domainRequest.expiresAt

@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { action, newExpiryDate } = await request.json()
+    const { action } = await request.json()
     const renewalRequestId = params.id
 
     // Get the renewal request

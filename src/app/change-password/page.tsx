@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Lock, Key, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
 

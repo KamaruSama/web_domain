@@ -17,7 +17,7 @@ import {
 import GlassCard from '@/components/GlassCard'
 import AnimatedButton from '@/components/AnimatedButton'
 import AnimatedInput from '@/components/AnimatedInput'
-import { LoadingSpinner, PageLoader } from '@/components/LoadingSpinner'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { 
   PageTransition, 
   FadeIn, 

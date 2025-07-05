@@ -444,23 +444,6 @@ export default function HomePage() {
   const expiredDomains = filteredDomains.filter(d => d.status === 'EXPIRED')
   const trashedDomains = filteredDomains.filter(d => d.status === 'TRASHED')
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
-  const getDaysUntilDeletion = (trashExpiresAt: string | null) => {
-    if (!trashExpiresAt) return 0
-    const now = new Date()
-    const expiry = new Date(trashExpiresAt)
-    const diffTime = expiry.getTime() - now.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return Math.max(0, diffDays)
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -645,7 +628,7 @@ export default function HomePage() {
                   domain={domain}
                   isGuest={!session}
                   isAdmin={session?.user.role === 'ADMIN'}
-                  onDelete={handleDeleteDomain}
+                  onDelete={(domainId, domainName, isInTrash) => handleDeleteDomain(domainId, domainName, isInTrash)}
                 />
               ))}
             </div>
@@ -667,8 +650,8 @@ export default function HomePage() {
                   domain={domain}
                   isGuest={!session}
                   isAdmin={session?.user.role === 'ADMIN'}
-                  onDelete={handleDeleteDomain}
-                  onRenew={handleRenewDomain}
+                  onDelete={(domainId, domainName, isInTrash) => handleDeleteDomain(domainId, domainName, isInTrash)}
+                  onRenew={(domainId, domainName) => handleRenewDomain(domainId, domainName)}
                   showRenewButton={true}
                 />
               ))}
@@ -691,8 +674,8 @@ export default function HomePage() {
                   domain={domain}
                   isGuest={false}
                   isAdmin={true}
-                  onDelete={handleDeleteDomain}
-                  onRestore={handleRestoreDomain}
+                  onDelete={(domainId, domainName, isInTrash) => handleDeleteDomain(domainId, domainName, isInTrash)}
+                  onRestore={(domainId, domainName) => handleRestoreDomain(domainId, domainName)}
                   isTrashed={true}
                 />
               ))}

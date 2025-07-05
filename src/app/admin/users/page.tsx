@@ -13,16 +13,12 @@ import {
   Calendar,
   AlertCircle,
   Copy,
-  ArrowLeft,
-  UserCheck,
-  UserX,
   Key,
   RotateCcw,
   Search,
   Filter,
   SortAsc,
-  SortDesc,
-  Settings2
+  SortDesc
 } from 'lucide-react'
 import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'

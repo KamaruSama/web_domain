@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { 
-  Ticket, 
   Clock, 
   CheckCircle, 
   XCircle, 
@@ -112,7 +110,6 @@ const DomainStatusBadge = ({ status }: { status: string }) => {
 
 export default function MyTicketsPage() {
   const { data: session } = useSession()
-  const router = useRouter()
   const [requests, setRequests] = useState<DomainRequest[]>([])
   const [renewalRequests, setRenewalRequests] = useState<RenewalRequest[]>([])
   const [loading, setLoading] = useState(true)
@@ -302,14 +299,6 @@ export default function MyTicketsPage() {
       console.error('Error processing renewal request:', error)
       alert('เกิดข้อผิดพลาดในการดำเนินการ')
     }
-  }
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
   }
 
   // Filter and sort domain requests

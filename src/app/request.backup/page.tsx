@@ -11,7 +11,6 @@ import {
   Mail, 
   Calendar, 
   Clock, 
-  Check, 
   X,
   Eye,
   EyeOff,
@@ -61,7 +60,6 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 export default function RequestPage() {
   const { data: session } = useSession()
-  const router = useRouter()
   const [requests, setRequests] = useState<DomainRequest[]>([])
   const [showHidden, setShowHidden] = useState(false)
   const [loading, setLoading] = useState(true)
