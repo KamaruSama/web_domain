@@ -6,7 +6,6 @@ import { motion } from 'framer-motion'
 import { 
   Users, 
   Globe,
-  RefreshCw,
   Shield,
   AlertCircle,
   ChevronRight,
@@ -51,28 +50,20 @@ export default function AdminPage() {
 
   const adminMenus = [
     {
-      title: 'คำขอ Domain',
-      description: 'จัดการคำขอใช้โดเมน อนุมัติ/ปฏิเสธ',
-      icon: Globe,
-      href: '/my-tickets',
-      color: 'bg-blue-500',
-      hoverColor: 'hover:bg-blue-600'
-    },
-    {
-      title: 'คำขอ ต่ออายุ',
-      description: 'จัดการคำขอต่ออายุโดเมน',
-      icon: RefreshCw,
-      href: '/renewal-management',
-      color: 'bg-green-500',
-      hoverColor: 'hover:bg-green-600'
-    },
-    {
       title: 'จัดการผู้ใช้',
       description: 'เพิ่ม ลบ จัดการบัญชีผู้ใช้',
       icon: Users,
       href: '/admin/users',
       color: 'bg-purple-500',
       hoverColor: 'hover:bg-purple-600'
+    },
+    {
+      title: 'คำขอ Domain / คำขอ ต่ออายุ',
+      description: 'จัดการคำขอใช้โดเมน และคำขอต่ออายุ อนุมัติ/ปฏิเสธ',
+      icon: Globe,
+      href: '/my-tickets',
+      color: 'bg-blue-500',
+      hoverColor: 'hover:bg-blue-600'
     }
   ]
 
@@ -104,7 +95,7 @@ export default function AdminPage() {
         </div>
 
         {/* Admin Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {adminMenus.map((menu, index) => (
             <motion.div
               key={menu.title}
@@ -136,31 +127,22 @@ export default function AdminPage() {
             <FileText className="w-5 h-5 mr-2" />
             ข้อมูลระบบ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <Globe className="w-6 h-6 text-blue-600 mr-2" />
-                <div>
-                  <p className="text-sm text-blue-600">คำขอ Domain</p>
-                  <p className="font-semibold text-blue-900">จัดการคำขอใช้โดเมน</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <RefreshCw className="w-6 h-6 text-green-600 mr-2" />
-                <div>
-                  <p className="text-sm text-green-600">คำขอ ต่ออายุ</p>
-                  <p className="font-semibold text-green-900">จัดการคำขอต่ออายุ</p>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
               <div className="flex items-center">
                 <UserCog className="w-6 h-6 text-purple-600 mr-2" />
                 <div>
                   <p className="text-sm text-purple-600">จัดการผู้ใช้</p>
                   <p className="font-semibold text-purple-900">เพิ่ม ลบ บัญชีผู้ใช้</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <Globe className="w-6 h-6 text-blue-600 mr-2" />
+                <div>
+                  <p className="text-sm text-blue-600">คำขอ Domain / ต่ออายุ</p>
+                  <p className="font-semibold text-blue-900">จัดการคำขอทั้งหมด</p>
                 </div>
               </div>
             </div>
@@ -174,27 +156,21 @@ export default function AdminPage() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">คำขอ Domain</h4>
-              <ul className="space-y-1">
-                <li>• อนุมัติ/ปฏิเสธคำขอใช้โดเมน</li>
-                <li>• ดูรายละเอียดคำขอทั้งหมด</li>
-                <li>• จัดการโดเมนที่อนุมัติแล้ว</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">คำขอ ต่ออายุ</h4>
-              <ul className="space-y-1">
-                <li>• อนุมัติ/ปฏิเสธคำขอต่ออายุ</li>
-                <li>• ดูเหตุผลการขอต่ออายุ</li>
-                <li>• จัดการวันหมดอายุใหม่</li>
-              </ul>
-            </div>
-            <div>
               <h4 className="font-medium text-gray-900 mb-2">จัดการผู้ใช้</h4>
               <ul className="space-y-1">
                 <li>• เพิ่มผู้ใช้งานใหม่</li>
                 <li>• ลบผู้ใช้งาน</li>
                 <li>• ดูรายการผู้ใช้ทั้งหมด</li>
+                <li>• จัดการสิทธิ์การใช้งาน</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">คำขอ Domain / คำขอ ต่ออายุ</h4>
+              <ul className="space-y-1">
+                <li>• อนุมัติ/ปฏิเสธคำขอใช้โดเมน</li>
+                <li>• อนุมัติ/ปฏิเสธคำขอต่ออายุ</li>
+                <li>• ดูรายละเอียดคำขอทั้งหมด</li>
+                <li>• จัดการโดเมนที่อนุมัติแล้ว</li>
               </ul>
             </div>
           </div>
