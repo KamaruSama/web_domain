@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       responsibleName,
       department,
       contact,
+      contactType,
       durationType,
       expiresAt
     } = body
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
       responsibleName,
       department,
       contact,
+      contactType: contactType || 'EMAIL',
       durationType,
       userId: session.user.id
     }

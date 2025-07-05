@@ -11,6 +11,7 @@ import {
   User, 
   Building, 
   Mail,
+  Phone,
   Calendar,
   CheckCircle,
   AlertCircle,
@@ -88,6 +89,25 @@ export default function HomePage() {
     }
   }
 
+  const handleDeleteDomain = async (domainId: string) => {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบโดเมนนี้?')) return
+    
+    try {
+      const response = await fetch(`/api/domains/${domainId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        fetchDomains() // Refresh the list
+      } else {
+        alert('เกิดข้อผิดพลาดในการลบโดเมน')
+      }
+    } catch (error) {
+      console.error('Delete Error:', error)
+      alert('เกิดข้อผิดพลาดในการลบโดเมน')
+    }
+  }
+
   const activeDomains = domains.filter(d => d.status === 'ACTIVE')
   const trashedDomains = domains.filter(d => d.status === 'TRASHED')
 
@@ -136,12 +156,7 @@ export default function HomePage() {
                     สวัสดี, {session.user.username}
                   </span>
                   <div className="flex space-x-2">
-                    <Link
-                      href="/request"
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      ขอใช้โดเมน
-                    </Link>
+                    {/* Navigation buttons */}
                     <Link
                       href="/my-tickets"
                       className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
@@ -180,6 +195,18 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Action Buttons for logged in users */}
+        {session && (
+          <div className="mb-8 flex justify-center">
+            <Link
+              href="/request"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              ขอใช้โดเมนใหม่
+            </Link>
+          </div>
+        )}
+        
         {/* Active Domains Section */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
@@ -195,71 +222,20 @@ export default function HomePage() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {activeDomains.map((domain) => (
-                <motion.div
+                <DomainCard
                   key={domain.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">
-                        {domain.domainRequest.domain}
-                      </h3>
-                      <StatusBadge status={domain.status} />
-                    </div>
-                    <Globe className="w-8 h-8 text-blue-600" />
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      {domain.domainRequest.requesterName}
-                    </div>
-                    <div className="flex items-center">
-                      <Building className="w-4 h-4 mr-2" />
-                      {domain.domainRequest.department}
-                    </div>
-                    <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-2" />
-                      {domain.domainRequest.contact}
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      {formatDate(domain.domainRequest.requestedAt)}
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <p className="text-sm text-gray-700 font-medium mb-2">
-                      วัตถุประสงค์:
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {domain.domainRequest.purpose}
-                    </p>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <p className="text-sm text-gray-500">
-                      IP: {domain.domainRequest.ipAddress}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      ประเภท: {domain.domainRequest.durationType === 'PERMANENT' ? 'ถาวร' : 'ชั่วคราว'}
-                    </p>
-                    {domain.domainRequest.expiresAt && (
-                      <p className="text-sm text-gray-500">
-                        หมดอายุ: {formatDate(domain.domainRequest.expiresAt)}
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
+                  domain={domain}
+                  isGuest={!session}
+                  isAdmin={session?.user.role === 'ADMIN'}
+                  onDelete={handleDeleteDomain}
+                />
               ))}
             </div>
           )}
         </section>
 
-        {/* Trashed Domains Section */}
-        {trashedDomains.length > 0 && (
+        {/* Trashed Domains Section - Only for Admin */}
+        {session?.user.role === 'ADMIN' && trashedDomains.length > 0 && (
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
               <Trash2 className="w-5 h-5 mr-2 text-red-600" />
@@ -268,49 +244,158 @@ export default function HomePage() {
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {trashedDomains.map((domain) => (
-                <motion.div
+                <DomainCard
                   key={domain.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-red-500"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">
-                        {domain.domainRequest.domain}
-                      </h3>
-                      <StatusBadge status={domain.status} />
-                    </div>
-                    <Trash2 className="w-8 h-8 text-red-600" />
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      {domain.domainRequest.requesterName}
-                    </div>
-                    <div className="flex items-center">
-                      <Building className="w-4 h-4 mr-2" />
-                      {domain.domainRequest.department}
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      ลบเมื่อ: {domain.deletedAt ? formatDate(domain.deletedAt) : 'ไม่ระบุ'}
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex items-center text-sm text-red-600 font-medium">
-                      <Clock className="w-4 h-4 mr-2" />
-                      ลบถาวรใน {getDaysUntilDeletion(domain.trashExpiresAt)} วัน
-                    </div>
-                  </div>
-                </motion.div>
+                  domain={domain}
+                  isGuest={false}
+                  isAdmin={true}
+                  onDelete={handleDeleteDomain}
+                  isTrashed={true}
+                />
               ))}
             </div>
           </section>
         )}
       </main>
     </div>
+  )
+}
+
+interface DomainCardProps {
+  domain: Domain
+  isGuest: boolean
+  isAdmin: boolean
+  onDelete: (domainId: string) => void
+  isTrashed?: boolean
+}
+
+const DomainCard = ({ domain, isGuest, isAdmin, onDelete, isTrashed = false }: DomainCardProps) => {
+  const [showDeleteButton, setShowDeleteButton] = useState(false)
+  
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  const getDaysUntilDeletion = (trashExpiresAt: string | null) => {
+    if (!trashExpiresAt) return 0
+    const now = new Date()
+    const expiry = new Date(trashExpiresAt)
+    const diffTime = expiry.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return Math.max(0, diffDays)
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow relative ${
+        isTrashed ? 'border-l-4 border-red-500' : ''
+      }`}
+      onMouseEnter={() => setShowDeleteButton(true)}
+      onMouseLeave={() => setShowDeleteButton(false)}
+    >
+      {/* Delete Button for Admin */}
+      {isAdmin && showDeleteButton && !isTrashed && (
+        <button
+          onClick={() => onDelete(domain.id)}
+          className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors z-10"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      )}
+      
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            {domain.domainRequest.domain}
+          </h3>
+          <StatusBadge status={domain.status} />
+        </div>
+        {isTrashed ? (
+          <Trash2 className="w-8 h-8 text-red-600" />
+        ) : (
+          <Globe className="w-8 h-8 text-blue-600" />
+        )}
+      </div>
+      
+      <div className="space-y-2 text-sm text-gray-600">
+        {/* Show IP Address for all users */}
+        <div className="flex items-center">
+          <span className="w-4 h-4 mr-2 text-gray-400">IP:</span>
+          <span className="font-medium">{domain.domainRequest.ipAddress}</span>
+        </div>
+        
+        {/* Show detailed info only for logged in users */}
+        {!isGuest && (
+          <>
+            <div className="flex items-center">
+              <User className="w-4 h-4 mr-2" />
+              {domain.domainRequest.requesterName}
+            </div>
+            <div className="flex items-center">
+              <Building className="w-4 h-4 mr-2" />
+              {domain.domainRequest.department}
+            </div>
+            <div className="flex items-center">
+              {domain.domainRequest.contactType === 'EMAIL' ? (
+                <Mail className="w-4 h-4 mr-2" />
+              ) : (
+                <Phone className="w-4 h-4 mr-2" />
+              )}
+              {domain.domainRequest.contact}
+            </div>
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-2" />
+              {isTrashed && domain.deletedAt ? (
+                <>ลบเมื่อ: {formatDate(domain.deletedAt)}</>
+              ) : (
+                formatDate(domain.domainRequest.requestedAt)
+              )}
+            </div>
+          </>
+        )}
+      </div>
+      
+      {/* Show purpose only for logged in users */}
+      {!isGuest && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-sm text-gray-700 font-medium mb-2">
+            วัตถุประสงค์:
+          </p>
+          <p className="text-sm text-gray-600">
+            {domain.domainRequest.purpose}
+          </p>
+        </div>
+      )}
+      
+      {/* Show additional info only for logged in users */}
+      {!isGuest && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-sm text-gray-500">
+            ประเภท: {domain.domainRequest.durationType === 'PERMANENT' ? 'ถาวร' : 'ชั่วคราว'}
+          </p>
+          {domain.domainRequest.expiresAt && (
+            <p className="text-sm text-gray-500">
+              หมดอายุ: {formatDate(domain.domainRequest.expiresAt)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Show trash expiry info for admin */}
+      {isTrashed && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center text-sm text-red-600 font-medium">
+            <Clock className="w-4 h-4 mr-2" />
+            ลบถาวรใน {getDaysUntilDeletion(domain.trashExpiresAt)} วัน
+          </div>
+        </div>
+      )}
+    </motion.div>
   )
 }

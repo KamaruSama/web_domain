@@ -34,6 +34,7 @@ model DomainRequest {
   responsibleName      String
   department           String
   contact              String
+  contactType          ContactType    @default(EMAIL)
   requestedAt          DateTime       @default(now())
   durationType         DurationType
   expiresAt            DateTime?
@@ -68,6 +69,11 @@ model DeletedDomainLog {
   reason          String
   
   @@map("deleted_domain_logs")
+}
+
+enum ContactType {
+  EMAIL
+  PHONE
 }
 
 enum Role {

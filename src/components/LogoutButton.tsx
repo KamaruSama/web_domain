@@ -9,7 +9,7 @@ interface LogoutButtonProps {
 
 export default function LogoutButton({ className = '' }: LogoutButtonProps) {
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' })
+    await signOut({ callbackUrl: '/' })
   }
 
   return (

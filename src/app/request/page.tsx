@@ -75,6 +75,7 @@ export default function RequestPage() {
     responsibleName: '',
     department: '',
     contact: '',
+    contactType: 'EMAIL',
     durationType: 'PERMANENT',
     expiresAt: ''
   })
@@ -121,6 +122,7 @@ export default function RequestPage() {
           responsibleName: '',
           department: '',
           contact: '',
+          contactType: 'EMAIL',
           durationType: 'PERMANENT',
           expiresAt: ''
         })
@@ -332,18 +334,34 @@ export default function RequestPage() {
                 </div>
 
                 <div>
+                  <label htmlFor="contactType" className="block text-sm font-medium text-gray-700 mb-2">
+                    ประเภทช่องทางติดต่อ *
+                  </label>
+                  <select
+                    id="contactType"
+                    name="contactType"
+                    value={formData.contactType}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="EMAIL">อีเมล</option>
+                    <option value="PHONE">เบอร์โทร</option>
+                  </select>
+                </div>
+
+                <div>
                   <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-2">
-                    ช่องทางติดต่อ *
+                    {formData.contactType === 'EMAIL' ? 'อีเมล' : 'เบอร์โทร'} *
                   </label>
                   <input
-                    type="text"
+                    type={formData.contactType === 'EMAIL' ? 'email' : 'tel'}
                     id="contact"
                     name="contact"
                     required
                     value={formData.contact}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="email@nstru.ac.th"
+                    placeholder={formData.contactType === 'EMAIL' ? 'example@nstru.ac.th' : '081-234-5678'}
                   />
                 </div>
 
