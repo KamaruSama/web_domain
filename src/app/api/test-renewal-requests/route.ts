@@ -42,15 +42,23 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('=== ERROR in test-renewal-requests ===')
-    console.error('Error name:', error.name)
-    console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
-    
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error.message,
-      type: error.name,
-      stack: error.stack
-    }, { status: 500 })
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+      
+      return NextResponse.json({ 
+        error: 'Internal server error',
+        details: error.message,
+        type: error.name,
+        stack: error.stack
+      }, { status: 500 })
+    } else {
+      console.error('An unknown error occurred:', error)
+      return NextResponse.json({ 
+        error: 'Internal server error',
+        details: 'An unknown error occurred'
+      }, { status: 500 })
+    }
   }
 }

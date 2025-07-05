@@ -38,6 +38,7 @@ interface Domain {
     responsibleName: string
     department: string
     contact: string
+    contactType: string
     requestedAt: string
     durationType: string
     expiresAt: string | null
@@ -1156,7 +1157,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
               {domain.domainRequest.department}
             </div>
             <div className="flex items-center">
-              {domain.domainRequest?.contactType === 'EMAIL' ? (
+              {domain.domainRequest.contactType === 'EMAIL' ? (
                 <Mail className="w-4 h-4 mr-2" />
               ) : (
                 <Phone className="w-4 h-4 mr-2" />
