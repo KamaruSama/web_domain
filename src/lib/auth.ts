@@ -52,6 +52,18 @@ export const authOptions: NextAuthOptions = {
         session.user.username = token.username as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // ถ้า url เป็น relative path ให้ใช้ baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      // ถ้า url เป็น absolute path และเป็น same origin ให้ใช้ได้
+      if (url.startsWith(baseUrl)) {
+        return url
+      }
+      // อื่นๆ ให้ redirect ไปที่ baseUrl
+      return baseUrl
     }
   },
   pages: {
