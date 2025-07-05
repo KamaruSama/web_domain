@@ -217,6 +217,70 @@ export default function MyTicketsPage() {
     }
   }
 
+  const handleApproveRequest = async (requestId: string, action: string) => {
+    const confirmMessage = action === 'approve' 
+      ? 'คุณแน่ใจหรือไม่ที่จะอนุมัติคำขอนี้?'
+      : 'คุณแน่ใจหรือไม่ที่จะไม่อนุมัติคำขอนี้?'
+    
+    if (!confirm(confirmMessage)) return
+
+    try {
+      const response = await fetch(`/api/requests/${requestId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action })
+      })
+
+      if (response.ok) {
+        const message = action === 'approve' 
+          ? 'อนุมัติคำขอสำเร็จ' 
+          : 'ไม่อนุมัติคำขอสำเร็จ'
+        alert(message)
+        fetchMyRequests()
+      } else {
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error processing request:', error)
+      alert('เกิดข้อผิดพลาดในการดำเนินการ')
+    }
+  }
+
+  const handleApproveRenewalRequest = async (requestId: string, action: string) => {
+    const confirmMessage = action === 'approve' 
+      ? 'คุณแน่ใจหรือไม่ที่จะอนุมัติคำขอต่ออายุนี้?'
+      : 'คุณแน่ใจหรือไม่ที่จะไม่อนุมัติคำขอต่ออายุนี้?'
+    
+    if (!confirm(confirmMessage)) return
+
+    try {
+      const response = await fetch(`/api/renewal-requests/${requestId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action })
+      })
+
+      if (response.ok) {
+        const message = action === 'approve' 
+          ? 'อนุมัติคำขอต่ออายุสำเร็จ' 
+          : 'ไม่อนุมัติคำขอต่ออายุสำเร็จ'
+        alert(message)
+        fetchMyRenewalRequests()
+      } else {
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error processing renewal request:', error)
+      alert('เกิดข้อผิดพลาดในการดำเนินการ')
+    }
+  }
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -569,7 +633,9 @@ export default function MyTicketsPage() {
                       key={request.id}
                       request={request}
                       onDelete={handleDeleteRequest}
+                      onApprove={handleApproveRequest}
                       canDelete={true}
+                      showApprovalButtons={session.user.role === 'ADMIN'}
                       isAdmin={session.user.role === 'ADMIN'}
                     />
                   ))}
@@ -699,7 +765,9 @@ export default function MyTicketsPage() {
                       key={request.id}
                       request={request}
                       onDelete={handleDeleteRenewalRequest}
+                      onApprove={handleApproveRenewalRequest}
                       canDelete={true}
+                      showApprovalButtons={session.user.role === 'ADMIN'}
                       isAdmin={session.user.role === 'ADMIN'}
                     />
                   ))}
@@ -767,12 +835,16 @@ export default function MyTicketsPage() {
 const RequestCard = ({ 
   request, 
   onDelete, 
+  onApprove,
   canDelete = false,
+  showApprovalButtons = false,
   isAdmin = false
 }: { 
   request: DomainRequest
   onDelete?: (id: string) => void
+  onApprove?: (id: string, action: string) => void
   canDelete?: boolean
+  showApprovalButtons?: boolean
   isAdmin?: boolean
 }) => {
   const formatDate = (date: string) => {
@@ -860,15 +932,35 @@ const RequestCard = ({
       </div>
 
       {/* Action Buttons */}
-      {canDelete && (
+      {(canDelete || showApprovalButtons) && (
         <div className="flex space-x-2 mt-4">
-          <button
-            onClick={() => onDelete?.(request.id)}
-            className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            ลบ
-          </button>
+          {showApprovalButtons && (
+            <>
+              <button
+                onClick={() => onApprove?.(request.id, 'approve')}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                อนุมัติ
+              </button>
+              <button
+                onClick={() => onApprove?.(request.id, 'reject')}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                ไม่อนุมัติ
+              </button>
+            </>
+          )}
+          {canDelete && !showApprovalButtons && (
+            <button
+              onClick={() => onDelete?.(request.id)}
+              className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              ลบ
+            </button>
+          )}
         </div>
       )}
     </motion.div>
@@ -878,11 +970,13 @@ const RequestCard = ({
 interface RenewalRequestCardProps {
   request: RenewalRequest
   onDelete?: (id: string) => void
+  onApprove?: (id: string, action: string) => void
   canDelete: boolean
+  showApprovalButtons?: boolean
   isAdmin: boolean
 }
 
-const RenewalRequestCard = ({ request, onDelete, canDelete, isAdmin }: RenewalRequestCardProps) => {
+const RenewalRequestCard = ({ request, onDelete, onApprove, canDelete, showApprovalButtons = false, isAdmin }: RenewalRequestCardProps) => {
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('th-TH', {
       year: 'numeric',
@@ -967,15 +1061,35 @@ const RenewalRequestCard = ({ request, onDelete, canDelete, isAdmin }: RenewalRe
       </div>
 
       {/* Action Buttons */}
-      {canDelete && (
+      {(canDelete || showApprovalButtons) && (
         <div className="flex space-x-2 mt-4">
-          <button
-            onClick={() => onDelete?.(request.id)}
-            className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            ลบ
-          </button>
+          {showApprovalButtons && (
+            <>
+              <button
+                onClick={() => onApprove?.(request.id, 'approve')}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                อนุมัติ
+              </button>
+              <button
+                onClick={() => onApprove?.(request.id, 'reject')}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                ไม่อนุมัติ
+              </button>
+            </>
+          )}
+          {canDelete && !showApprovalButtons && (
+            <button
+              onClick={() => onDelete?.(request.id)}
+              className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              ลบ
+            </button>
+          )}
         </div>
       )}
     </motion.div>
