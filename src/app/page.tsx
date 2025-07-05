@@ -484,14 +484,14 @@ export default function HomePage() {
           <div className="flex space-x-2 mb-8">
             <button
               onClick={() => setShowRenewalModal(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+              className="btn-emerald px-4 py-2 rounded-lg transition-colors flex items-center"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               ขอต่ออายุ
             </button>
             <button
               onClick={() => setShowRequestModal(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+              className="btn-emerald px-4 py-2 rounded-lg transition-colors flex items-center"
             >
               <Plus className="w-4 h-4 mr-2" />
               ขอใช้โดเมนใหม่
@@ -617,7 +617,7 @@ export default function HomePage() {
               </p>
               <Link
                 href="/login"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="btn-indigo px-6 py-2 rounded-lg transition-colors"
               >
                 เข้าสู่ระบบ
               </Link>
@@ -767,13 +767,13 @@ export default function HomePage() {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleRestoreCancel}
-                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={handleRestoreSubmit}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-4 py-2 btn-emerald rounded-lg transition-colors"
               >
                 กู้คืน
               </button>
@@ -936,13 +936,13 @@ export default function HomePage() {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleRequestCancel}
-                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={handleRequestSubmit}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-4 py-2 btn-emerald rounded-lg transition-colors"
               >
                 ส่งคำขอ
               </button>
@@ -1012,13 +1012,13 @@ export default function HomePage() {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleRenewalCancel}
-                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 btn-cool-gray rounded-lg transition-colors"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={handleRenewalSubmit}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="px-4 py-2 btn-emerald rounded-lg transition-colors"
               >
                 ส่งคำขอ
               </button>
@@ -1078,7 +1078,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
           {isTrashed && onRestore && (
             <button
               onClick={() => onRestore(domain.id, domain.domainRequest.domain)}
-              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
+              className="w-8 h-8 btn-emerald rounded-full flex items-center justify-center transition-colors z-10"
               title="กู้คืน"
             >
               <RotateCcw className="w-4 h-4" />
@@ -1089,7 +1089,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
           {showRenewButton && onRenew && (
             <button
               onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
-              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
+              className="w-8 h-8 btn-emerald rounded-full flex items-center justify-center transition-colors z-10"
               title="ขอต่ออายุ"
             >
               <RefreshCw className="w-4 h-4" />
@@ -1101,8 +1101,8 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
             onClick={() => onDelete(domain.id, domain.domainRequest.domain, isTrashed)}
             className={`w-8 h-8 text-white rounded-full flex items-center justify-center transition-colors z-10 ${
               isTrashed 
-                ? 'bg-red-800 hover:bg-red-900' 
-                : 'bg-red-600 hover:bg-red-700'
+                ? 'btn-rose' 
+                : 'btn-rose'
             }`}
             title={isTrashed ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
           >
@@ -1116,7 +1116,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
         <div className="absolute -top-2 -right-2">
           <button
             onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
-            className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
+            className="w-8 h-8 btn-emerald rounded-full flex items-center justify-center transition-colors z-10"
             title="ขอต่ออายุ"
           >
             <RefreshCw className="w-4 h-4" />

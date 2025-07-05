@@ -432,7 +432,7 @@ export default function MyTicketsPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">กรุณาเข้าสู่ระบบ</p>
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/login" className="btn-indigo px-4 py-2 rounded-lg">
             เข้าสู่ระบบ
           </Link>
         </div>
@@ -1119,14 +1119,14 @@ const RequestCard = ({
             <>
               <button
                 onClick={() => onApprove?.(request.id, 'approve')}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center"
+                className="flex-1 btn-emerald py-2 px-4 rounded-lg flex items-center justify-center"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 อนุมัติ
               </button>
               <button
                 onClick={() => onApprove?.(request.id, 'reject')}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+                className="flex-1 btn-rose py-2 px-4 rounded-lg flex items-center justify-center"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 ไม่อนุมัติ
@@ -1136,7 +1136,7 @@ const RequestCard = ({
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center bg-red-600 text-white hover:bg-red-700`}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center btn-rose`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               ลบ
@@ -1248,14 +1248,14 @@ const RenewalRequestCard = ({ request, onDelete, onApprove, canDelete, showAppro
             <>
               <button
                 onClick={() => onApprove?.(request.id, 'approve')}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center"
+                className="flex-1 btn-emerald py-2 px-4 rounded-lg flex items-center justify-center"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 อนุมัติ
               </button>
               <button
                 onClick={() => onApprove?.(request.id, 'reject')}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+                className="flex-1 btn-rose py-2 px-4 rounded-lg flex items-center justify-center"
               >
                 <XCircle className="w-4 h-4 mr-2" />
                 ไม่อนุมัติ
@@ -1265,7 +1265,7 @@ const RenewalRequestCard = ({ request, onDelete, onApprove, canDelete, showAppro
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center bg-red-600 text-white hover:bg-red-700`}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center btn-rose`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               ลบ

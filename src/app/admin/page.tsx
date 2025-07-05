@@ -26,7 +26,7 @@ export default function AdminPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">กรุณาเข้าสู่ระบบ</p>
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/login" className="btn-indigo px-4 py-2 rounded-lg">
             เข้าสู่ระบบ
           </Link>
         </div>
@@ -40,7 +40,7 @@ export default function AdminPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</p>
-          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/" className="btn-indigo px-4 py-2 rounded-lg">
             กลับหน้าหลัก
           </Link>
         </div>
@@ -54,16 +54,16 @@ export default function AdminPage() {
       description: 'เพิ่ม ลบ จัดการบัญชีผู้ใช้',
       icon: Users,
       href: '/admin/users',
-      color: 'bg-purple-500',
-      hoverColor: 'hover:bg-purple-600'
+      color: '#10B981',
+      hoverColor: '#059669'
     },
     {
       title: 'คำขอ Domain / คำขอ ต่ออายุ',
       description: 'จัดการคำขอใช้โดเมน และคำขอต่ออายุ อนุมัติ/ปฏิเสธ',
       icon: Globe,
       href: '/my-tickets',
-      color: 'bg-blue-500',
-      hoverColor: 'hover:bg-blue-600'
+      color: '#3B82F6',
+      hoverColor: '#2563EB'
     }
   ]
 
@@ -104,7 +104,12 @@ export default function AdminPage() {
               transition={{ delay: index * 0.1 }}
             >
               <Link href={menu.href}>
-                <div className={`${menu.color} ${menu.hoverColor} transition-all duration-300 rounded-xl p-6 text-white cursor-pointer transform hover:scale-105 shadow-lg hover:shadow-xl`}>
+                <div 
+                  className={`transition-all duration-300 rounded-xl p-6 text-white cursor-pointer transform hover:scale-105 shadow-lg hover:shadow-xl`}
+                  style={{ backgroundColor: menu.color }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = menu.hoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = menu.color}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <menu.icon className="w-8 h-8" />
                     <ChevronRight className="w-5 h-5 opacity-70" />
@@ -128,21 +133,21 @@ export default function AdminPage() {
             ข้อมูลระบบ
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <div className="flex items-center">
-                <UserCog className="w-6 h-6 text-purple-600 mr-2" />
+                <UserCog className="w-6 h-6 text-emerald-600 mr-2" />
                 <div>
-                  <p className="text-sm text-purple-600">จัดการผู้ใช้</p>
-                  <p className="font-semibold text-purple-900">เพิ่ม ลบ บัญชีผู้ใช้</p>
+                  <p className="text-sm text-emerald-600">จัดการผู้ใช้</p>
+                  <p className="font-semibold text-emerald-900">เพิ่ม ลบ บัญชีผู้ใช้</p>
                 </div>
               </div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
               <div className="flex items-center">
-                <Globe className="w-6 h-6 text-blue-600 mr-2" />
+                <Globe className="w-6 h-6 text-indigo-600 mr-2" />
                 <div>
-                  <p className="text-sm text-blue-600">คำขอ Domain / ต่ออายุ</p>
-                  <p className="font-semibold text-blue-900">จัดการคำขอทั้งหมด</p>
+                  <p className="text-sm text-indigo-600">คำขอ Domain / ต่ออายุ</p>
+                  <p className="font-semibold text-indigo-900">จัดการคำขอทั้งหมด</p>
                 </div>
               </div>
             </div>

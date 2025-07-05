@@ -186,7 +186,7 @@ export default function UsersManagementPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">กรุณาเข้าสู่ระบบ</p>
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/login" className="btn-indigo px-4 py-2 rounded-lg">
             เข้าสู่ระบบ
           </Link>
         </div>
@@ -200,7 +200,7 @@ export default function UsersManagementPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</p>
-          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/" className="btn-indigo px-4 py-2 rounded-lg">
             กลับหน้าหลัก
           </Link>
         </div>
@@ -356,7 +356,7 @@ export default function UsersManagementPage() {
             </h2>
             <button
               onClick={() => setShowAddUser(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+              className="btn-emerald px-4 py-2 rounded-lg flex items-center"
             >
               <Plus className="w-4 h-4 mr-2" />
               เพิ่มผู้ใช้
@@ -368,9 +368,9 @@ export default function UsersManagementPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6"
+              className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 mb-6"
             >
-              <h3 className="text-lg font-semibold text-purple-900 mb-4">เพิ่มผู้ใช้ใหม่</h3>
+              <h3 className="text-lg font-semibold text-emerald-900 mb-4">เพิ่มผู้ใช้ใหม่</h3>
               
               {generatedPassword && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
@@ -426,13 +426,13 @@ export default function UsersManagementPage() {
                   <button
                     type="button"
                     onClick={closeAddUserForm}
-                    className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300"
+                    className="px-4 py-2 btn-cool-gray rounded-lg"
                   >
                     ยกเลิก
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="px-4 py-2 btn-emerald rounded-lg"
                   >
                     เพิ่มผู้ใช้
                   </button>
@@ -491,7 +491,7 @@ export default function UsersManagementPage() {
                   )}
                   <button
                     onClick={() => handleResetPassword(user.id, user.username)}
-                    className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    className="p-2 rounded-lg btn-indigo"
                     title="รีเซ็ตรหัสผ่าน"
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -502,7 +502,7 @@ export default function UsersManagementPage() {
                     className={`p-2 rounded-lg ${
                       user.id === session.user.id 
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                        : 'bg-red-100 text-red-600 hover:bg-red-200'
+                        : 'btn-rose'
                     }`}
                     title={user.id === session.user.id ? 'ไม่สามารถลบตัวเองได้' : 'ลบผู้ใช้'}
                   >

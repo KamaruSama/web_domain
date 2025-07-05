@@ -23,7 +23,7 @@ export default function NavigationBar() {
           <div>
             <Link href="/" className="hover:opacity-80 transition-opacity">
               <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Globe className="w-8 h-8 mr-3 text-blue-600" />
+                <Globe className="w-8 h-8 mr-3 text-indigo-600" />
                 ระบบขอใช้โดเมน
               </h1>
               <p className="text-gray-600 ml-11">มหาวิทยาลัยราชภัฏนครศรีธรรมราช</p>
@@ -39,7 +39,7 @@ export default function NavigationBar() {
                   {/* Navigation buttons */}
                   <Link
                     href="/my-tickets"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
                   >
                     <Ticket className="w-4 h-4 mr-2" />
                     คำขอของฉัน
@@ -47,7 +47,7 @@ export default function NavigationBar() {
                   {session.user.role === 'ADMIN' && (
                     <Link
                       href="/admin"
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                      className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
                     >
                       <Shield className="w-4 h-4 mr-2" />
                       จัดการระบบ
@@ -55,18 +55,18 @@ export default function NavigationBar() {
                   )}
                   <Link
                     href="/change-password"
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                    className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
                   >
                     <Key className="w-4 h-4 mr-2" />
                     เปลี่ยนรหัสผ่าน
                   </Link>
-                  <LogoutButton className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors" />
+                  <LogoutButton className="btn-rose px-4 py-2 rounded-lg transition-colors" />
                 </div>
               </div>
             ) : (
               <Link
                 href="/login"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                className="btn-indigo px-4 py-2 rounded-lg transition-colors flex items-center"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 เข้าสู่ระบบ
