@@ -611,210 +611,234 @@ export default function MyTicketsPage() {
           </h2>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Clock className="w-8 h-8 text-yellow-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">รอพิจารณา</p>
-                  <p className="text-2xl font-semibold text-gray-900">{pendingRequests.length}</p>
+          <div className={`grid grid-cols-1 gap-4 mb-8 ${
+            filters.status === 'ALL' ? 'md:grid-cols-5' : 
+            filters.status === 'APPROVED' ? 'md:grid-cols-3' : 
+            'md:grid-cols-1'
+          }`}>
+            {(filters.status === 'ALL' || filters.status === 'PENDING') && (
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Clock className="w-8 h-8 text-yellow-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">รอพิจารณา</p>
+                    <p className="text-2xl font-semibold text-gray-900">{pendingRequests.length}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <CheckCircle className="w-8 h-8 text-green-500" />
+            {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+              <>
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="w-8 h-8 text-green-500" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">ใช้งาน</p>
+                      <p className="text-2xl font-semibold text-gray-900">{approvedActiveRequests.length}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">ใช้งาน</p>
-                  <p className="text-2xl font-semibold text-gray-900">{approvedActiveRequests.length}</p>
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <AlertCircle className="w-8 h-8 text-orange-500" />
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <AlertCircle className="w-8 h-8 text-orange-500" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">หมดอายุ</p>
+                      <p className="text-2xl font-semibold text-gray-900">{approvedExpiredRequests.length}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">หมดอายุ</p>
-                  <p className="text-2xl font-semibold text-gray-900">{approvedExpiredRequests.length}</p>
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Trash2 className="w-8 h-8 text-red-500" />
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <Trash2 className="w-8 h-8 text-red-500" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">ถังขยะ</p>
+                      <p className="text-2xl font-semibold text-gray-900">{approvedTrashedRequests.length}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">ถังขยะ</p>
-                  <p className="text-2xl font-semibold text-gray-900">{approvedTrashedRequests.length}</p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <XCircle className="w-8 h-8 text-gray-500" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ</p>
-                  <p className="text-2xl font-semibold text-gray-900">{rejectedRequests.length}</p>
+            {(filters.status === 'ALL' || filters.status === 'REJECTED') && (
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <XCircle className="w-8 h-8 text-gray-500" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ</p>
+                    <p className="text-2xl font-semibold text-gray-900">{rejectedRequests.length}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Domain Requests Sections */}
           <div className="space-y-8">
             {/* Pending Requests */}
-            <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                คำขอรอพิจารณา ({pendingRequests.length})
-              </h3>
-              
-              {pendingRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอรอพิจารณา</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {pendingRequests.map((request) => (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRequest}
-                      onApprove={handleApproveRequest}
-                      canDelete={true}
-                      showApprovalButtons={session.user.role === 'ADMIN'}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'PENDING') && (
+              <section>
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                  คำขอรอพิจารณา ({pendingRequests.length})
+                </h3>
+                
+                {pendingRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีคำขอรอพิจารณา</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {pendingRequests.map((request) => (
+                      <RequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRequest}
+                        onApprove={handleApproveRequest}
+                        canDelete={true}
+                        showApprovalButtons={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Active Domains */}
-            <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                โดเมนที่ใช้งาน ({approvedActiveRequests.length})
-              </h3>
-              <p className="text-sm text-gray-500 mb-6">
-                โดเมนที่ได้รับการอนุมัติและสามารถใช้งานได้ปกติ
-              </p>
-              
-              {approvedActiveRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีโดเมนที่ใช้งาน</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {approvedActiveRequests.map((request) => (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRequest}
-                      canDelete={session.user.role === 'ADMIN'}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+              <section>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  โดเมนที่ใช้งาน ({approvedActiveRequests.length})
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  โดเมนที่ได้รับการอนุมัติและสามารถใช้งานได้ปกติ
+                </p>
+                
+                {approvedActiveRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีโดเมนที่ใช้งาน</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {approvedActiveRequests.map((request) => (
+                      <RequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRequest}
+                        canDelete={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Expired Domains */}
-            <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                โดเมนที่หมดอายุ ({approvedExpiredRequests.length})
-              </h3>
-              <p className="text-sm text-gray-500 mb-6">
-                โดเมนที่หมดอายุแล้ว สามารถขอต่ออายุได้
-              </p>
-              
-              {approvedExpiredRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีโดเมนที่หมดอายุ</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {approvedExpiredRequests.map((request) => (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRequest}
-                      canDelete={session.user.role === 'ADMIN'}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+              <section>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  โดเมนที่หมดอายุ ({approvedExpiredRequests.length})
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  โดเมนที่หมดอายุแล้ว สามารถขอต่ออายุได้
+                </p>
+                
+                {approvedExpiredRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีโดเมนที่หมดอายุ</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {approvedExpiredRequests.map((request) => (
+                      <RequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRequest}
+                        canDelete={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Trashed Domains */}
-            <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                โดเมนในถังขยะ ({approvedTrashedRequests.length})
-              </h3>
-              <p className="text-sm text-gray-500 mb-6">
-                โดเมนที่ถูกลบ จะถูกลบถาวรหลังจาก 90 วัน
-              </p>
-              
-              {approvedTrashedRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <Trash2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีโดเมนในถังขยะ</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {approvedTrashedRequests.map((request) => (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRequest}
-                      canDelete={session.user.role === 'ADMIN'}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+              <section>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  โดเมนในถังขยะ ({approvedTrashedRequests.length})
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  โดเมนที่ถูกลบ จะถูกลบถาวรหลังจาก 90 วัน
+                </p>
+                
+                {approvedTrashedRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Trash2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีโดเมนในถังขยะ</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {approvedTrashedRequests.map((request) => (
+                      <RequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRequest}
+                        canDelete={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Rejected Requests */}
-            <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                คำขอที่ไม่อนุมัติ ({rejectedRequests.length})
-              </h3>
-              
-              {rejectedRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอที่ไม่อนุมัติ</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {rejectedRequests.map((request) => (
-                    <RequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRequest}
-                      canDelete={true}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'REJECTED') && (
+              <section>
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                  คำขอที่ไม่อนุมัติ ({rejectedRequests.length})
+                </h3>
+                
+                {rejectedRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีคำขอที่ไม่อนุมัติ</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {rejectedRequests.map((request) => (
+                      <RequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRequest}
+                        onApprove={handleApproveRequest}
+                        canDelete={true}
+                        showApprovalButtons={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         </div>
         ) : (
@@ -826,128 +850,146 @@ export default function MyTicketsPage() {
             </h2>
 
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Clock className="w-8 h-8 text-yellow-500" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">รอพิจารณา</dt>
-                      <dd className="text-lg font-medium text-gray-900">{pendingRenewalRequests.length}</dd>
-                    </dl>
+            <div className={`grid grid-cols-1 gap-6 mb-8 ${
+              filters.status === 'ALL' ? 'md:grid-cols-3' : 
+              'md:grid-cols-1'
+            }`}>
+              {(filters.status === 'ALL' || filters.status === 'PENDING') && (
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <Clock className="w-8 h-8 text-yellow-500" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">รอพิจารณา</dt>
+                        <dd className="text-lg font-medium text-gray-900">{pendingRenewalRequests.length}</dd>
+                      </dl>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <CheckCircle className="w-8 h-8 text-green-500" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">อนุมัติ</dt>
-                      <dd className="text-lg font-medium text-gray-900">{approvedRenewalRequests.length}</dd>
-                    </dl>
+              {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="w-8 h-8 text-green-500" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">อนุมัติ</dt>
+                        <dd className="text-lg font-medium text-gray-900">{approvedRenewalRequests.length}</dd>
+                      </dl>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <XCircle className="w-8 h-8 text-red-500" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">ปฏิเสธ</dt>
-                      <dd className="text-lg font-medium text-gray-900">{rejectedRenewalRequests.length}</dd>
-                    </dl>
+              {(filters.status === 'ALL' || filters.status === 'REJECTED') && (
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <XCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <div className="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt className="text-sm font-medium text-gray-500 truncate">ปฏิเสธ</dt>
+                        <dd className="text-lg font-medium text-gray-900">{rejectedRenewalRequests.length}</dd>
+                      </dl>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Pending Renewal Requests */}
-            <section className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Clock className="w-5 h-5 mr-2 text-yellow-500" />
-                รอพิจารณา ({pendingRenewalRequests.length})
-              </h3>
-              {pendingRenewalRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอต่ออายุที่รอพิจารณา</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {pendingRenewalRequests.map((request) => (
-                    <RenewalRequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRenewalRequest}
-                      onApprove={handleApproveRenewalRequest}
-                      canDelete={true}
-                      showApprovalButtons={session.user.role === 'ADMIN'}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'PENDING') && (
+              <section className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Clock className="w-5 h-5 mr-2 text-yellow-500" />
+                  รอพิจารณา ({pendingRenewalRequests.length})
+                </h3>
+                {pendingRenewalRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Clock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีคำขอต่ออายุที่รอพิจารณา</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {pendingRenewalRequests.map((request) => (
+                      <RenewalRequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRenewalRequest}
+                        onApprove={handleApproveRenewalRequest}
+                        canDelete={true}
+                        showApprovalButtons={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Approved Renewal Requests */}
-            <section className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-                อนุมัติแล้ว ({approvedRenewalRequests.length})
-              </h3>
-              {approvedRenewalRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอต่ออายุที่อนุมัติแล้ว</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {approvedRenewalRequests.map((request) => (
-                    <RenewalRequestCard
-                      key={request.id}
-                      request={request}
-                      canDelete={false}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'APPROVED') && (
+              <section className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                  อนุมัติแล้ว ({approvedRenewalRequests.length})
+                </h3>
+                {approvedRenewalRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีคำขอต่ออายุที่อนุมัติแล้ว</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {approvedRenewalRequests.map((request) => (
+                      <RenewalRequestCard
+                        key={request.id}
+                        request={request}
+                        canDelete={false}
+                        showApprovalButtons={false}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Rejected Renewal Requests */}
-            <section className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <XCircle className="w-5 h-5 mr-2 text-red-500" />
-                ปฏิเสธ ({rejectedRenewalRequests.length})
-              </h3>
-              {rejectedRenewalRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอต่ออายุที่ปฏิเสธ</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {rejectedRenewalRequests.map((request) => (
-                    <RenewalRequestCard
-                      key={request.id}
-                      request={request}
-                      onDelete={handleDeleteRenewalRequest}
-                      canDelete={true}
-                      isAdmin={session.user.role === 'ADMIN'}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            {(filters.status === 'ALL' || filters.status === 'REJECTED') && (
+              <section className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <XCircle className="w-5 h-5 mr-2 text-red-500" />
+                  ปฏิเสธ ({rejectedRenewalRequests.length})
+                </h3>
+                {rejectedRenewalRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">ไม่มีคำขอต่ออายุที่ปฏิเสธ</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {rejectedRenewalRequests.map((request) => (
+                      <RenewalRequestCard
+                        key={request.id}
+                        request={request}
+                        onDelete={handleDeleteRenewalRequest}
+                        onApprove={handleApproveRenewalRequest}
+                        canDelete={true}
+                        showApprovalButtons={session.user.role === 'ADMIN'}
+                        isAdmin={session.user.role === 'ADMIN'}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         )}
       </main>
