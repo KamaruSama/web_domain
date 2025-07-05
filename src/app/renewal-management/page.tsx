@@ -34,13 +34,12 @@ interface RenewalRequest {
   }
   domain: {
     id: string
-    domainRequest: {
-      domain: string
-      durationType: string
-      expiresAt: string | null
-      requesterName: string
-      department: string
-    }
+    domain: string
+    durationType: string
+    expiresAt: string | null
+    requesterName: string
+    department: string
+    status: string
   }
 }
 
@@ -169,9 +168,9 @@ export default function RenewalManagementPage() {
 
   // Filter and sort renewal requests
   const filteredRequests = renewalRequests.filter(request => {
-    const matchesSearch = request.domain.domainRequest.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
+    const matchesSearch = request.domain.domain.toLowerCase().includes(filters.search.toLowerCase()) ||
                          request.user.username.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         request.domain.domainRequest.department.toLowerCase().includes(filters.search.toLowerCase())
+                         request.domain.department.toLowerCase().includes(filters.search.toLowerCase())
     
     const matchesStatus = filters.status === 'ALL' || request.status === filters.status
     
@@ -183,8 +182,8 @@ export default function RenewalManagementPage() {
     
     switch (field) {
       case 'domain':
-        aValue = a.domain.domainRequest.domain
-        bValue = b.domain.domainRequest.domain
+        aValue = a.domain.domain
+        bValue = b.domain.domain
         break
       case 'username':
         aValue = a.user.username
@@ -491,7 +490,7 @@ const RenewalRequestCard = ({
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-medium text-gray-900 mb-1">
-            {request.domain.domainRequest.domain}
+            {request.domain.domain}
           </h3>
           <StatusBadge status={request.status} />
         </div>
@@ -505,7 +504,7 @@ const RenewalRequestCard = ({
         </div>
         <div className="flex items-center">
           <User className="w-4 h-4 mr-2" />
-          <span>ผู้ขอ: {request.domain.domainRequest.requesterName}</span>
+          <span>ผู้ขอ: {request.domain.requesterName}</span>
         </div>
         <div className="flex items-center">
           <Calendar className="w-4 h-4 mr-2" />
@@ -513,7 +512,7 @@ const RenewalRequestCard = ({
         </div>
         <div className="flex items-center">
           <Calendar className="w-4 h-4 mr-2" />
-          <span>วันหมดอายุเดิม: {request.domain.domainRequest.expiresAt ? formatDate(request.domain.domainRequest.expiresAt) : 'ไม่มี'}</span>
+          <span>วันหมดอายุเดิม: {request.domain.expiresAt ? formatDate(request.domain.expiresAt) : 'ไม่มี'}</span>
         </div>
         <div className="flex items-center">
           <Calendar className="w-4 h-4 mr-2" />

@@ -64,7 +64,23 @@ export async function GET(request: NextRequest) {
     })
 
     console.log('Successfully fetched renewal requests. Count:', renewalRequests.length)
-    return NextResponse.json(renewalRequests)
+
+    // Manually construct the response to avoid circular dependency issues
+    const responseData = renewalRequests.map(request => ({
+      ...request,
+      domain: {
+        id: request.domain.id,
+        domainRequestId: request.domain.domainRequestId,
+        lastUsedAt: request.domain.lastUsedAt,
+        deletedAt: request.domain.deletedAt,
+        trashExpiresAt: request.domain.trashExpiresAt,
+        status: request.domain.status,
+        // Flatten the nested domainRequest details
+        ...request.domain.domainRequest
+      }
+    }))
+
+    return NextResponse.json(responseData)
     
   } catch (error) {
     console.error('=== ERROR in GET /api/renewal-requests ===')
