@@ -281,16 +281,22 @@ export default function MyTicketsPage() {
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 หน้าแรก
               </Link>
+              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
+                คำขอของฉัน
+              </Link>
               {session.user.role === 'ADMIN' && (
-                <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
-                  จัดการคำขอต่ออายุ
-                </Link>
+                <>
+                  <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
+                    จัดการคำขอต่ออายุ
+                  </Link>
+                  <Link href="/admin" className="text-gray-600 hover:text-gray-900">
+                    จัดการระบบ
+                  </Link>
+                </>
               )}
-              {session.user.role === 'ADMIN' && (
-                <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                  จัดการระบบ
-                </Link>
-              )}
+              <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
+                เปลี่ยนรหัสผ่าน
+              </Link>
               <span className="text-sm text-gray-700">
                 สวัสดี, {session.user.username}
               </span>

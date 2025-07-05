@@ -16,7 +16,8 @@ import {
   ArrowLeft,
   UserCheck,
   UserX,
-  Key
+  Key,
+  RotateCcw
 } from 'lucide-react'
 import Link from 'next/link'
 import LogoutButton from '@/components/LogoutButton'
@@ -120,6 +121,33 @@ export default function UsersManagementPage() {
     }
   }
 
+  const handleResetPassword = async (userId: string, username: string) => {
+    if (!confirm(`คุณต้องการรีเซ็ตรหัสผ่านของผู้ใช้ "${username}" ใช่หรือไม่?`)) return
+
+    try {
+      const response = await fetch('/api/admin/users/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert(`รีเซ็ตรหัสผ่านสำเร็จ!\n\nรหัสผ่านใหม่: ${result.newPassword}\n\nกรุณาเก็บรหัสผ่านนี้ไว้และแจ้งให้ผู้ใช้ทราบ`)
+        // Copy password to clipboard
+        navigator.clipboard.writeText(result.newPassword)
+      } else {
+        const error = await response.json()
+        alert(error.error || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+      }
+    } catch (error) {
+      console.error('Error resetting password:', error)
+      alert('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+    }
+  }
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     alert('คัดลอกแล้ว!')
@@ -199,6 +227,12 @@ export default function UsersManagementPage() {
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 หน้าแรก
+              </Link>
+              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
+                คำขอทั้งหมด
+              </Link>
+              <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
+                จัดการคำขอต่ออายุ
               </Link>
               <Link href="/admin" className="text-gray-600 hover:text-gray-900">
                 จัดการระบบ
@@ -359,6 +393,13 @@ export default function UsersManagementPage() {
                     </span>
                   )}
                   <button
+                    onClick={() => handleResetPassword(user.id, user.username)}
+                    className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    title="รีเซ็ตรหัสผ่าน"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => handleDeleteUser(user.id, user.username)}
                     disabled={user.id === session.user.id}
                     className={`p-2 rounded-lg ${
@@ -389,13 +430,21 @@ export default function UsersManagementPage() {
             <Key className="w-5 h-5 mr-2" />
             คำแนะนำการใช้งาน
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
             <div>
               <h4 className="font-medium text-gray-900 mb-2">การเพิ่มผู้ใช้</h4>
               <ul className="space-y-1">
                 <li>• คลิก "เพิ่มผู้ใช้" และกรอกข้อมูล</li>
                 <li>• รหัสผ่านจะถูกสร้างอัตโนมัติ</li>
                 <li>• บันทึกรหัสผ่านให้ผู้ใช้ทราบ</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">การรีเซ็ตรหัสผ่าน</h4>
+              <ul className="space-y-1">
+                <li>• คลิกปุ่มลูกศรหมุนเพื่อรีเซ็ต</li>
+                <li>• รหัสผ่านใหม่จะถูกสร้างอัตโนมัติ</li>
+                <li>• รหัสผ่านจะถูกคัดลอกไปยังคลิปบอร์ด</li>
               </ul>
             </div>
             <div>

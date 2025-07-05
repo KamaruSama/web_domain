@@ -129,14 +129,22 @@ export default function ChangePasswordPage() {
                 คำขอของฉัน
               </Link>
               {session.user.role === 'ADMIN' && (
-                <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                  จัดการระบบ
-                </Link>
+                <>
+                  <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
+                    จัดการคำขอต่ออายุ
+                  </Link>
+                  <Link href="/admin" className="text-gray-600 hover:text-gray-900">
+                    จัดการระบบ
+                  </Link>
+                </>
               )}
+              <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
+                เปลี่ยนรหัสผ่าน
+              </Link>
               <span className="text-sm text-gray-700">
                 สวัสดี, {session.user.username}
               </span>
-              <LogoutButton className="bg-red-600 text-white px-3 py-1 rounded" />
+              <LogoutButton className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors" />
             </div>
           </div>
         </div>

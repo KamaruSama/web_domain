@@ -430,6 +430,12 @@ export default function HomePage() {
                   </span>
                   <div className="flex space-x-2">
                     {/* Navigation buttons */}
+                    <Link
+                      href="/my-tickets"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      คำขอของฉัน
+                    </Link>
                     {session.user.role === 'ADMIN' && (
                       <Link
                         href="/admin"
@@ -438,6 +444,12 @@ export default function HomePage() {
                         จัดการระบบ
                       </Link>
                     )}
+                    <Link
+                      href="/change-password"
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      เปลี่ยนรหัสผ่าน
+                    </Link>
                     <LogoutButton className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors" />
                   </div>
                 </div>
@@ -459,12 +471,6 @@ export default function HomePage() {
         {/* Action buttons */}
         {session && (
           <div className="flex space-x-2 mb-8">
-            <Link
-              href="/my-tickets"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              คำขอของฉัน
-            </Link>
             <button
               onClick={() => setShowRenewalModal(true)}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
