@@ -45,22 +45,13 @@ export default function NavigationBar() {
                     คำขอของฉัน
                   </Link>
                   {session.user.role === 'ADMIN' && (
-                    <>
-                      <Link
-                        href="/admin"
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
-                      >
-                        <Shield className="w-4 h-4 mr-2" />
-                        จัดการระบบ
-                      </Link>
-                      <Link
-                        href="/renewal-management"
-                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
-                      >
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        จัดการขอต่ออายุ
-                      </Link>
-                    </>
+                    <Link
+                      href="/admin"
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      จัดการระบบ
+                    </Link>
                   )}
                   <Link
                     href="/change-password"

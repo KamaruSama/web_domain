@@ -77,7 +77,10 @@ export async function DELETE(
     }
 
     const domainRequest = await prisma.domainRequest.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: {
+        domain_record: true
+      }
     })
 
     if (!domainRequest) {
@@ -89,17 +92,63 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Delete domain record if exists
-    await prisma.domain.deleteMany({
-      where: { domainRequestId: params.id }
-    })
+    // If request is APPROVED and has domain record, handle based on domain status
+    if (domainRequest.status === 'APPROVED' && domainRequest.domain_record) {
+      // Only admin can manage approved requests
+      if (session.user.role !== 'ADMIN') {
+        return NextResponse.json({ error: 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการคำขอที่อนุมัติแล้ว' }, { status: 403 })
+      }
 
-    // Delete request
-    await prisma.domainRequest.delete({
-      where: { id: params.id }
-    })
+      if (domainRequest.domain_record.status === 'TRASHED') {
+        // If already in trash, delete permanently
+        await prisma.domain.delete({
+          where: { id: domainRequest.domain_record.id }
+        })
+        
+        // Create deletion log
+        await prisma.deletedDomainLog.create({
+          data: {
+            domainName: domainRequest.domain,
+            requesterName: domainRequest.requesterName,
+            department: domainRequest.department,
+            originalCreatedAt: domainRequest.requestedAt,
+            deletedAt: new Date(),
+            reason: 'ลบถาวรโดย Admin',
+            deletedBy: session.user.username
+          }
+        })
 
-    return NextResponse.json({ message: 'Request deleted successfully' })
+        return NextResponse.json({ message: 'ลบโดเมนออกจากระบบถาวรเรียบร้อยแล้ว' })
+      } else {
+        // Move domain to trash
+        await prisma.domain.update({
+          where: { id: domainRequest.domain_record.id },
+          data: {
+            status: 'TRASHED',
+            deletedAt: new Date(),
+            trashExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+          }
+        })
+
+        return NextResponse.json({ message: 'คำขอถูกย้ายไปยังถังขยะเรียบร้อยแล้ว' })
+      }
+    } else {
+      // For non-approved requests, delete normally
+      // Delete domain record if exists
+      if (domainRequest.domain_record) {
+        await prisma.domain.delete({
+          where: { id: domainRequest.domain_record.id }
+        })
+      }
+
+      // Delete request
+      await prisma.domainRequest.delete({
+        where: { id: params.id }
+      })
+
+      return NextResponse.json({ message: 'Request deleted successfully' })
+    }
+
   } catch (error) {
     console.error('Error deleting request:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

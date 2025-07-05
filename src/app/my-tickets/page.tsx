@@ -166,7 +166,28 @@ export default function MyTicketsPage() {
   }
 
   const handleDeleteRequest = async (requestId: string) => {
-    if (!confirm('คุณต้องการลบคำขอนี้ใช่หรือไม่?')) return
+    // Check if this is an approved request
+    const request = requests.find(r => r.id === requestId)
+    const isApproved = request?.status === 'APPROVED'
+    const domainStatus = request?.domain_record?.status
+    
+    let confirmMessage = 'คุณต้องการลบคำขอนี้ใช่หรือไม่?'
+    
+    if (isApproved) {
+      switch (domainStatus) {
+        case 'ACTIVE':
+          confirmMessage = 'คุณต้องการย้ายโดเมนที่ใช้งานไปยังถังขยะใช่หรือไม่?'
+          break
+        case 'EXPIRED':
+          confirmMessage = 'คุณต้องการย้ายโดเมนที่หมดอายุไปยังถังขยะใช่หรือไม่?'
+          break
+        case 'TRASHED':
+          confirmMessage = 'คุณต้องการลบโดเมนในถังขยะออกจากระบบถาวรใช่หรือไม่?'
+          break
+      }
+    }
+    
+    if (!confirm(confirmMessage)) return
 
     try {
       const response = await fetch(`/api/requests/${requestId}`, {
@@ -174,6 +195,8 @@ export default function MyTicketsPage() {
       })
 
       if (response.ok) {
+        const result = await response.json()
+        alert(result.message || 'ดำเนินการสำเร็จ')
         fetchMyRequests()
       } else {
         const error = await response.json()
@@ -384,6 +407,19 @@ export default function MyTicketsPage() {
   const pendingRequests = filteredRequests.filter(r => r.status === 'PENDING')
   const approvedRequests = filteredRequests.filter(r => r.status === 'APPROVED')
   const rejectedRequests = filteredRequests.filter(r => r.status === 'REJECTED')
+  
+  // Further categorize approved requests by domain status
+  const approvedActiveRequests = approvedRequests.filter(r => 
+    r.domain_record?.status === 'ACTIVE' && 
+    (!r.expiresAt || new Date(r.expiresAt) > new Date())
+  )
+  const approvedExpiredRequests = approvedRequests.filter(r => 
+    r.domain_record?.status === 'EXPIRED' || 
+    (r.expiresAt && new Date(r.expiresAt) <= new Date() && r.domain_record?.status === 'ACTIVE')
+  )
+  const approvedTrashedRequests = approvedRequests.filter(r => 
+    r.domain_record?.status === 'TRASHED'
+  )
 
   // Renewal requests by status
   const pendingRenewalRequests = filteredRenewalRequests.filter(r => r.status === 'PENDING')
@@ -575,7 +611,7 @@ export default function MyTicketsPage() {
           </h2>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -594,8 +630,8 @@ export default function MyTicketsPage() {
                   <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">อนุมัติ</p>
-                  <p className="text-2xl font-semibold text-gray-900">{approvedRequests.length}</p>
+                  <p className="text-sm font-medium text-gray-500">ใช้งาน</p>
+                  <p className="text-2xl font-semibold text-gray-900">{approvedActiveRequests.length}</p>
                 </div>
               </div>
             </div>
@@ -603,7 +639,31 @@ export default function MyTicketsPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <XCircle className="w-8 h-8 text-red-500" />
+                  <AlertCircle className="w-8 h-8 text-orange-500" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">หมดอายุ</p>
+                  <p className="text-2xl font-semibold text-gray-900">{approvedExpiredRequests.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Trash2 className="w-8 h-8 text-red-500" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">ถังขยะ</p>
+                  <p className="text-2xl font-semibold text-gray-900">{approvedTrashedRequests.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <XCircle className="w-8 h-8 text-gray-500" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">ไม่อนุมัติ</p>
@@ -643,23 +703,86 @@ export default function MyTicketsPage() {
               )}
             </section>
 
-            {/* Approved Requests */}
+            {/* Active Domains */}
             <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                คำขอที่อนุมัติแล้ว ({approvedRequests.length})
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                โดเมนที่ใช้งาน ({approvedActiveRequests.length})
               </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                โดเมนที่ได้รับการอนุมัติและสามารถใช้งานได้ปกติ
+              </p>
               
-              {approvedRequests.length === 0 ? (
+              {approvedActiveRequests.length === 0 ? (
                 <div className="text-center py-12">
                   <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">ไม่มีคำขอที่อนุมัติแล้ว</p>
+                  <p className="text-gray-500">ไม่มีโดเมนที่ใช้งาน</p>
                 </div>
               ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {approvedRequests.map((request) => (
+                  {approvedActiveRequests.map((request) => (
                     <RequestCard
                       key={request.id}
                       request={request}
+                      onDelete={handleDeleteRequest}
+                      canDelete={session.user.role === 'ADMIN'}
+                      isAdmin={session.user.role === 'ADMIN'}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Expired Domains */}
+            <section>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                โดเมนที่หมดอายุ ({approvedExpiredRequests.length})
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                โดเมนที่หมดอายุแล้ว สามารถขอต่ออายุได้
+              </p>
+              
+              {approvedExpiredRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">ไม่มีโดเมนที่หมดอายุ</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {approvedExpiredRequests.map((request) => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onDelete={handleDeleteRequest}
+                      canDelete={session.user.role === 'ADMIN'}
+                      isAdmin={session.user.role === 'ADMIN'}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Trashed Domains */}
+            <section>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                โดเมนในถังขยะ ({approvedTrashedRequests.length})
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                โดเมนที่ถูกลบ จะถูกลบถาวรหลังจาก 90 วัน
+              </p>
+              
+              {approvedTrashedRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <Trash2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">ไม่มีโดเมนในถังขยะ</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {approvedTrashedRequests.map((request) => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onDelete={handleDeleteRequest}
+                      canDelete={session.user.role === 'ADMIN'}
                       isAdmin={session.user.role === 'ADMIN'}
                     />
                   ))}
@@ -876,6 +999,12 @@ const RequestCard = ({
             {request.domain_record && (
               <DomainStatusBadge status={request.domain_record.status} />
             )}
+            {request.domain_record?.status === 'TRASHED' && request.domain_record.trashExpiresAt && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                <Trash2 className="w-3 h-3 mr-1" />
+                ลบถาวร: {formatDate(request.domain_record.trashExpiresAt)}
+              </span>
+            )}
           </div>
         </div>
         <Globe className="w-8 h-8 text-blue-600" />
@@ -929,6 +1058,16 @@ const RequestCard = ({
             {isExpired(request.expiresAt) && ' (หมดอายุแล้ว)'}
           </p>
         )}
+        {request.domain_record?.status === 'TRASHED' && request.domain_record.deletedAt && (
+          <p className="text-sm text-red-500 font-medium">
+            ย้ายไปถังขยะ: {formatDate(request.domain_record.deletedAt)}
+          </p>
+        )}
+        {request.domain_record?.status === 'TRASHED' && request.domain_record.trashExpiresAt && (
+          <p className="text-sm text-orange-500 font-medium">
+            จะลบถาวร: {formatDate(request.domain_record.trashExpiresAt)}
+          </p>
+        )}
       </div>
 
       {/* Action Buttons */}
@@ -955,10 +1094,14 @@ const RequestCard = ({
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center ${
+                request.domain_record?.status === 'TRASHED' 
+                  ? 'bg-red-700 text-white hover:bg-red-800' 
+                  : 'bg-red-600 text-white hover:bg-red-700'
+              }`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              ลบ
+              {request.domain_record?.status === 'TRASHED' ? 'ลบถาวร' : 'ลบ'}
             </button>
           )}
         </div>
@@ -1084,10 +1227,14 @@ const RenewalRequestCard = ({ request, onDelete, onApprove, canDelete, showAppro
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 flex items-center justify-center"
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center ${
+                request.domain_record?.status === 'TRASHED' 
+                  ? 'bg-red-700 text-white hover:bg-red-800' 
+                  : 'bg-red-600 text-white hover:bg-red-700'
+              }`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              ลบ
+              {request.domain_record?.status === 'TRASHED' ? 'ลบถาวร' : 'ลบ'}
             </button>
           )}
         </div>
