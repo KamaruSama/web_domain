@@ -430,12 +430,6 @@ export default function HomePage() {
                   </span>
                   <div className="flex space-x-2">
                     {/* Navigation buttons */}
-                    <Link
-                      href="/my-tickets"
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      คำขอของฉัน
-                    </Link>
                     {session.user.role === 'ADMIN' && (
                       <Link
                         href="/admin"
@@ -444,6 +438,7 @@ export default function HomePage() {
                         จัดการระบบ
                       </Link>
                     )}
+                    <LogoutButton className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors" />
                   </div>
                 </div>
               ) : (
@@ -476,6 +471,12 @@ export default function HomePage() {
             >
               ขอต่ออายุ
             </button>
+            <button
+              onClick={() => setShowRequestModal(true)}
+              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              ขอใช้โดเมนใหม่
+            </button>
           </div>
         )}
 
@@ -496,22 +497,6 @@ export default function HomePage() {
                 เข้าสู่ระบบ
               </Link>
             </div>
-          </div>
-        )}
-
-        {/* Request Form for logged in users */}
-        {session && (
-          <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              ขอใช้โดเมนใหม่
-            </h3>
-            <button
-              onClick={() => setShowRequestModal(true)}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              ส่งคำขอใช้โดเมน
-            </button>
           </div>
         )}
 

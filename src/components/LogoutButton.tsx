@@ -15,7 +15,7 @@ export default function LogoutButton({ className = '' }: LogoutButtonProps) {
   return (
     <button
       onClick={handleLogout}
-      className={`flex items-center text-red-600 hover:text-red-700 transition-colors ${className}`}
+      className={`flex items-center justify-center transition-colors ${className}`}
     >
       <LogOut className="w-4 h-4 mr-1" />
       ออกจากระบบ
