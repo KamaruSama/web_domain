@@ -507,7 +507,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <Search className="w-4 h-4 mr-1" />
                 ค้นหา
               </label>
@@ -522,7 +522,7 @@ export default function HomePage() {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <Settings2 className="w-4 h-4 mr-1" />
                 สถานะ
               </label>
@@ -540,7 +540,7 @@ export default function HomePage() {
 
             {/* Duration Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <Clock className="w-4 h-4 mr-1" />
                 ประเภท
               </label>
@@ -557,7 +557,7 @@ export default function HomePage() {
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 <SortAsc className="w-4 h-4 mr-1" />
                 เรียงตาม
               </label>
@@ -575,7 +575,7 @@ export default function HomePage() {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                 {filters.sortOrder === 'desc' ? 
                   <SortDesc className="w-4 h-4 mr-1" /> : 
                   <SortAsc className="w-4 h-4 mr-1" />
@@ -1156,7 +1156,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
               {domain.domainRequest.department}
             </div>
             <div className="flex items-center">
-              {domain.domainRequest.contactType === 'EMAIL' ? (
+              {domain.domainRequest?.contactType === 'EMAIL' ? (
                 <Mail className="w-4 h-4 mr-2" />
               ) : (
                 <Phone className="w-4 h-4 mr-2" />

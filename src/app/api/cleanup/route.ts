@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
 export async function POST(request: NextRequest) {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Move expired domains to trash
     const trashedCount = await Promise.all(
-      expiredDomains.map(async (domain) => {
+      expiredDomains.map(async (domain: any) => {
         const trashExpiry = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
         
         return await prisma.domain.update({
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Log domains before permanent deletion
     await Promise.all(
-      oldTrashedDomains.map(async (domain) => {
+      oldTrashedDomains.map(async (domain: any) => {
         await prisma.deletedDomainLog.create({
           data: {
             domainName: domain.domainRequest.domain,
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
     await prisma.domainRequest.deleteMany({
       where: {
         id: {
-          in: oldTrashedDomains.map(d => d.domainRequestId)
+          in: oldTrashedDomains.map((d: any) => d.domainRequestId)
         }
       }
     })

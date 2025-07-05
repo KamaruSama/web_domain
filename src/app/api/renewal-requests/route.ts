@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     console.log('Successfully fetched renewal requests. Count:', renewalRequests.length)
 
     // Manually construct the response to avoid circular dependency issues
-    const responseData = renewalRequests.map(request => ({
+    const responseData = renewalRequests.map((request: any) => ({
       ...request,
       domain: {
         id: request.domain.id,
@@ -84,15 +84,15 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('=== ERROR in GET /api/renewal-requests ===')
-    console.error('Error name:', error.name)
-    console.error('Error message:', error.message)
-    console.error('Error stack:', error.stack)
+    console.error('Error name:', (error as Error).name)
+    console.error('Error message:', (error as Error).message)
+    console.error('Error stack:', (error as Error).stack)
     console.error('Full error object:', error)
     
     return NextResponse.json({ 
       error: 'Internal server error',
-      details: error.message,
-      type: error.name
+      details: (error as Error).message,
+      type: (error as Error).name
     }, { status: 500 })
   }
 }

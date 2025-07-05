@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Database check error:', error)
     return NextResponse.json({
-      error: error.message,
-      type: error.name,
-      stack: error.stack
+      error: (error as Error).message,
+      type: (error as Error).name,
+      stack: (error as Error).stack
     }, { status: 500 })
   }
 }
