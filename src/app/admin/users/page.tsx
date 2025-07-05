@@ -356,7 +356,7 @@ export default function UsersManagementPage() {
             </h2>
             <button
               onClick={() => setShowAddUser(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
             >
               <Plus className="w-4 h-4 mr-2" />
               เพิ่มผู้ใช้
@@ -432,7 +432,7 @@ export default function UsersManagementPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
                     เพิ่มผู้ใช้
                   </button>

@@ -491,7 +491,7 @@ export default function HomePage() {
             </button>
             <button
               onClick={() => setShowRequestModal(true)}
-              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
             >
               <Plus className="w-4 h-4 mr-2" />
               ขอใช้โดเมนใหม่
@@ -942,7 +942,7 @@ export default function HomePage() {
               </button>
               <button
                 onClick={handleRequestSubmit}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 ส่งคำขอ
               </button>
@@ -1089,7 +1089,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
           {showRenewButton && onRenew && (
             <button
               onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
-              className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors z-10"
+              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
               title="ขอต่ออายุ"
             >
               <RefreshCw className="w-4 h-4" />
@@ -1116,7 +1116,7 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, is
         <div className="absolute -top-2 -right-2">
           <button
             onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
-            className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors z-10"
+            className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
             title="ขอต่ออายุ"
           >
             <RefreshCw className="w-4 h-4" />
