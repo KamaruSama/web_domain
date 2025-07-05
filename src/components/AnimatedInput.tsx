@@ -1,9 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ReactNode, InputHTMLAttributes, forwardRef } from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
+import { ReactNode, forwardRef } from 'react'
 
-interface AnimatedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+interface AnimatedInputProps extends Omit<HTMLMotionProps<'input'>, 'size'> {
   label?: string
   error?: string
   success?: string
@@ -81,7 +81,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
               ${className}
             `}
             variants={inputVariants}
-            whileFocus="focus"
+            whileFocus={{ scale: 1.02 }}
             onBlur={() => inputVariants.blur}
             {...props}
           />
