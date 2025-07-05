@@ -15,7 +15,9 @@ import {
   Calendar,
   CheckCircle,
   AlertCircle,
-  XCircle
+  XCircle,
+  RotateCcw,
+  Plus
 } from 'lucide-react'
 import LogoutButton from '@/components/LogoutButton'
 import Link from 'next/link'
@@ -67,6 +69,31 @@ export default function HomePage() {
   const { data: session } = useSession()
   const [domains, setDomains] = useState<Domain[]>([])
   const [loading, setLoading] = useState(true)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [showRenewalModal, setShowRenewalModal] = useState(false)
+  const [showRequestModal, setShowRequestModal] = useState(false)
+  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null)
+  const [restoreData, setRestoreData] = useState({
+    durationType: 'PERMANENT',
+    expiresAt: ''
+  })
+  const [renewalData, setRenewalData] = useState({
+    domainId: '',
+    newExpiryDate: '',
+    reason: ''
+  })
+  const [requestData, setRequestData] = useState({
+    domain: '',
+    purpose: '',
+    ipAddress: '',
+    requesterName: '',
+    responsibleName: '',
+    department: '',
+    contact: '',
+    contactType: 'EMAIL',
+    durationType: 'PERMANENT',
+    expiresAt: ''
+  })
 
   useEffect(() => {
     fetchDomains()
@@ -89,8 +116,12 @@ export default function HomePage() {
     }
   }
 
-  const handleDeleteDomain = async (domainId: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบโดเมนนี้?')) return
+  const handleDeleteDomain = async (domainId: string, domainName: string, isInTrash: boolean) => {
+    const confirmMessage = isInTrash 
+      ? `คุณแน่ใจหรือไม่ที่จะลบโดเมน "${domainName}" ถาวร? การดำเนินการนี้ไม่สามารถยกเลิกได้!`
+      : `คุณแน่ใจหรือไม่ที่จะย้ายโดเมน "${domainName}" ไปยังถังขยะ?`
+    
+    if (!confirm(confirmMessage)) return
     
     try {
       const response = await fetch(`/api/domains/${domainId}`, {
@@ -98,9 +129,19 @@ export default function HomePage() {
       })
       
       if (response.ok) {
+        const result = await response.json()
+        
+        // Show appropriate message based on action
+        if (result.action === 'moved_to_trash') {
+          alert(`โดเมน "${domainName}" ถูกย้ายไปยังถังขยะแล้ว`)
+        } else if (result.action === 'permanently_deleted') {
+          alert(`โดเมน "${domainName}" ถูกลบถาวรแล้ว`)
+        }
+        
         fetchDomains() // Refresh the list
       } else {
-        alert('เกิดข้อผิดพลาดในการลบโดเมน')
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
       }
     } catch (error) {
       console.error('Delete Error:', error)
@@ -108,7 +149,239 @@ export default function HomePage() {
     }
   }
 
+  const handleRestoreDomain = async (domainId: string, domainName: string) => {
+    // Find the domain to restore
+    const domain = domains.find(d => d.id === domainId)
+    if (!domain) {
+      alert('ไม่พบโดเมนที่ต้องการกู้คืน')
+      return
+    }
+    
+    // Set selected domain and show modal
+    setSelectedDomain(domain)
+    setRestoreData({
+      durationType: domain.domainRequest.durationType, // Use original type as default
+      expiresAt: domain.domainRequest.expiresAt ? 
+        new Date(domain.domainRequest.expiresAt).toISOString().split('T')[0] : ''
+    })
+    setShowRestoreModal(true)
+  }
+
+  const handleRestoreSubmit = async () => {
+    if (!selectedDomain) return
+    
+    // Validate expiry date for temporary domains
+    if (restoreData.durationType === 'TEMPORARY' && !restoreData.expiresAt) {
+      alert('กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว')
+      return
+    }
+    
+    try {
+      const response = await fetch(`/api/domains/${selectedDomain.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          action: 'restore',
+          durationType: restoreData.durationType,
+          expiresAt: restoreData.durationType === 'TEMPORARY' ? restoreData.expiresAt : null
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        if (result.action === 'restored') {
+          const typeText = restoreData.durationType === 'PERMANENT' ? 'ถาวร' : 'ชั่วคราว'
+          const expiryText = restoreData.durationType === 'TEMPORARY' && restoreData.expiresAt 
+            ? ` (หมดอายุ: ${new Date(restoreData.expiresAt).toLocaleDateString('th-TH')})` 
+            : ''
+          alert(`โดเมน "${selectedDomain.domainRequest.domain}" ถูกกู้คืนเป็นประเภท${typeText}${expiryText}แล้ว`)
+        }
+        
+        // Reset modal state
+        setShowRestoreModal(false)
+        setSelectedDomain(null)
+        setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
+        
+        fetchDomains() // Refresh the list
+      } else {
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Restore Error:', error)
+      alert('เกิดข้อผิดพลาดในการกู้คืนโดเมน')
+    }
+  }
+
+  const handleRestoreDataChange = (field: string, value: string) => {
+    setRestoreData(prev => ({
+      ...prev,
+      [field]: value,
+      // Reset expiresAt when changing to PERMANENT
+      ...(field === 'durationType' && value === 'PERMANENT' && { expiresAt: '' })
+    }))
+  }
+
+  const handleRestoreCancel = () => {
+    setShowRestoreModal(false)
+    setSelectedDomain(null)
+    setRestoreData({ durationType: 'PERMANENT', expiresAt: '' })
+  }
+
+  const handleRenewDomain = async (domainId: string, domainName: string) => {
+    const domain = domains.find(d => d.id === domainId)
+    if (!domain) {
+      alert('ไม่พบโดเมนที่ต้องการต่ออายุ')
+      return
+    }
+
+    setRenewalData({
+      domainId: domainId,
+      newExpiryDate: '',
+      reason: ''
+    })
+    setShowRenewalModal(true)
+  }
+
+  const handleRenewalSubmit = async () => {
+    if (!renewalData.domainId || !renewalData.newExpiryDate) {
+      alert('กรุณาระบุข้อมูลให้ครบถ้วน')
+      return
+    }
+
+    // Validate date is in the future
+    if (new Date(renewalData.newExpiryDate) <= new Date()) {
+      alert('วันหมดอายุใหม่ต้องเป็นวันที่ในอนาคต')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/renewal-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          domainId: renewalData.domainId,
+          newExpiryDate: renewalData.newExpiryDate,
+          reason: renewalData.reason
+        })
+      })
+
+      if (response.ok) {
+        alert('ส่งคำขอต่ออายุสำเร็จ รอการอนุมัติจากผู้ดูแลระบบ')
+        setShowRenewalModal(false)
+        setRenewalData({ domainId: '', newExpiryDate: '', reason: '' })
+      } else {
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error submitting renewal request:', error)
+      alert('เกิดข้อผิดพลาดในการส่งคำขอต่ออายุ')
+    }
+  }
+
+  const handleRenewalCancel = () => {
+    setShowRenewalModal(false)
+    setRenewalData({ domainId: '', newExpiryDate: '', reason: '' })
+  }
+
+  const handleRequestSubmit = async () => {
+    // Validate required fields
+    if (!requestData.domain || !requestData.purpose || !requestData.ipAddress || 
+        !requestData.requesterName || !requestData.responsibleName || 
+        !requestData.department || !requestData.contact) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน')
+      return
+    }
+
+    // Validate expiry date for temporary domains
+    if (requestData.durationType === 'TEMPORARY' && !requestData.expiresAt) {
+      alert('กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว')
+      return
+    }
+
+    if (requestData.durationType === 'TEMPORARY' && new Date(requestData.expiresAt) <= new Date()) {
+      alert('วันหมดอายุต้องเป็นวันที่ในอนาคต')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          domain: requestData.domain,
+          purpose: requestData.purpose,
+          ipAddress: requestData.ipAddress,
+          requesterName: requestData.requesterName,
+          responsibleName: requestData.responsibleName,
+          department: requestData.department,
+          contact: requestData.contact,
+          contactType: requestData.contactType,
+          durationType: requestData.durationType,
+          expiresAt: requestData.durationType === 'TEMPORARY' ? requestData.expiresAt : null
+        })
+      })
+
+      if (response.ok) {
+        alert('ส่งคำขอใช้โดเมนสำเร็จ รอการอนุมัติจากผู้ดูแลระบบ')
+        setShowRequestModal(false)
+        setRequestData({
+          domain: '',
+          purpose: '',
+          ipAddress: '',
+          requesterName: '',
+          responsibleName: '',
+          department: '',
+          contact: '',
+          contactType: 'EMAIL',
+          durationType: 'PERMANENT',
+          expiresAt: ''
+        })
+      } else {
+        const error = await response.json()
+        alert(`เกิดข้อผิดพลาด: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error)
+      alert('เกิดข้อผิดพลาดในการส่งคำขอ')
+    }
+  }
+
+  const handleRequestCancel = () => {
+    setShowRequestModal(false)
+    setRequestData({
+      domain: '',
+      purpose: '',
+      ipAddress: '',
+      requesterName: '',
+      responsibleName: '',
+      department: '',
+      contact: '',
+      contactType: 'EMAIL',
+      durationType: 'PERMANENT',
+      expiresAt: ''
+    })
+  }
+
+  const handleRequestDataChange = (field: string, value: string) => {
+    setRequestData(prev => ({
+      ...prev,
+      [field]: value,
+      // Reset expiresAt when changing to PERMANENT
+      ...(field === 'durationType' && value === 'PERMANENT' && { expiresAt: '' })
+    }))
+  }
+
   const activeDomains = domains.filter(d => d.status === 'ACTIVE')
+  const expiredDomains = domains.filter(d => d.status === 'EXPIRED')
   const trashedDomains = domains.filter(d => d.status === 'TRASHED')
 
   const formatDate = (date: string) => {
@@ -171,13 +444,6 @@ export default function HomePage() {
                         จัดการระบบ
                       </Link>
                     )}
-                    <Link
-                      href="/change-password"
-                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      เปลี่ยนรหัสผ่าน
-                    </Link>
-                    <LogoutButton className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors" />
                   </div>
                 </div>
               ) : (
@@ -195,18 +461,60 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Action Buttons for logged in users */}
+        {/* Action buttons */}
         {session && (
-          <div className="mb-8 flex justify-center">
+          <div className="flex space-x-2 mb-8">
             <Link
-              href="/request"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              href="/my-tickets"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              ขอใช้โดเมนใหม่
+              คำขอของฉัน
             </Link>
+            <button
+              onClick={() => setShowRenewalModal(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              ขอต่ออายุ
+            </button>
           </div>
         )}
-        
+
+        {/* Request Form Button for non-logged in users */}
+        {!session && (
+          <div className="text-center mb-8">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                ต้องการขอใช้โดเมน?
+              </h3>
+              <p className="text-blue-700 mb-4">
+                กรุณาเข้าสู่ระบบเพื่อส่งคำขอใช้โดเมน หรือติดต่อผู้ดูแลระบบ
+              </p>
+              <Link
+                href="/login"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                เข้าสู่ระบบ
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Request Form for logged in users */}
+        {session && (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              ขอใช้โดเมนใหม่
+            </h3>
+            <button
+              onClick={() => setShowRequestModal(true)}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              ส่งคำขอใช้โดเมน
+            </button>
+          </div>
+        )}
+
         {/* Active Domains Section */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
@@ -234,6 +542,30 @@ export default function HomePage() {
           )}
         </section>
 
+        {/* Expired Domains Section */}
+        {expiredDomains.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
+              โดเมนหมดอายุ ({expiredDomains.length})
+            </h2>
+            
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {expiredDomains.map((domain) => (
+                <DomainCard
+                  key={domain.id}
+                  domain={domain}
+                  isGuest={!session}
+                  isAdmin={session?.user.role === 'ADMIN'}
+                  onDelete={handleDeleteDomain}
+                  onRenew={handleRenewDomain}
+                  showRenewButton={true}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Trashed Domains Section - Only for Admin */}
         {session?.user.role === 'ADMIN' && trashedDomains.length > 0 && (
           <section>
@@ -250,6 +582,7 @@ export default function HomePage() {
                   isGuest={false}
                   isAdmin={true}
                   onDelete={handleDeleteDomain}
+                  onRestore={handleRestoreDomain}
                   isTrashed={true}
                 />
               ))}
@@ -257,6 +590,329 @@ export default function HomePage() {
           </section>
         )}
       </main>
+
+      {/* Restore Modal */}
+      {showRestoreModal && selectedDomain && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              กู้คืนโดเมน
+            </h3>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                โดเมน: <span className="font-medium">{selectedDomain.domainRequest.domain}</span>
+              </p>
+              <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                <p className="text-xs text-gray-500 mb-1">ข้อมูลเดิม:</p>
+                <p className="text-sm">
+                  ประเภท: <span className="font-medium">
+                    {selectedDomain.domainRequest.durationType === 'PERMANENT' ? 'ถาวร' : 'ชั่วคราว'}
+                  </span>
+                </p>
+                {selectedDomain.domainRequest.expiresAt && (
+                  <p className="text-sm">
+                    หมดอายุ: <span className="font-medium">
+                      {new Date(selectedDomain.domainRequest.expiresAt).toLocaleDateString('th-TH')}
+                    </span>
+                  </p>
+                )}
+              </div>
+              <p className="text-sm text-gray-600">
+                กรุณาเลือกประเภทการใช้งานสำหรับโดเมนที่กู้คืน
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ประเภทการใช้งาน *
+                </label>
+                <select
+                  value={restoreData.durationType}
+                  onChange={(e) => handleRestoreDataChange('durationType', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="PERMANENT">ถาวร</option>
+                  <option value="TEMPORARY">ชั่วคราว</option>
+                </select>
+              </div>
+
+              {restoreData.durationType === 'TEMPORARY' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    วันหมดอายุ *
+                  </label>
+                  <input
+                    type="date"
+                    value={restoreData.expiresAt}
+                    onChange={(e) => handleRestoreDataChange('expiresAt', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleRestoreCancel}
+                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleRestoreSubmit}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                กู้คืน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Request Modal */}
+      {showRequestModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              ขอใช้โดเมนใหม่
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ชื่อโดเมน *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.domain}
+                    onChange={(e) => handleRequestDataChange('domain', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="example.nstru.ac.th"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    IP Address *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.ipAddress}
+                    onChange={(e) => handleRequestDataChange('ipAddress', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="192.168.1.1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  วัตถุประสงค์ *
+                </label>
+                <textarea
+                  value={requestData.purpose}
+                  onChange={(e) => handleRequestDataChange('purpose', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="ระบุวัตถุประสงค์ในการใช้งาน"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ชื่อผู้ขอ *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.requesterName}
+                    onChange={(e) => handleRequestDataChange('requesterName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="นายสมชาย ใจดี"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ชื่อผู้รับผิดชอบ *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.responsibleName}
+                    onChange={(e) => handleRequestDataChange('responsibleName', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="นายสมศักดิ์ รักษา"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  หน่วยงาน/ภาควิชา *
+                </label>
+                <input
+                  type="text"
+                  value={requestData.department}
+                  onChange={(e) => handleRequestDataChange('department', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="ภาควิชาวิทยาการคอมพิวเตอร์"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ข้อมูลติดต่อ *
+                  </label>
+                  <input
+                    type="text"
+                    value={requestData.contact}
+                    onChange={(e) => handleRequestDataChange('contact', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="example@email.com หรือ 081-234-5678"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ประเภทการติดต่อ *
+                  </label>
+                  <select
+                    value={requestData.contactType}
+                    onChange={(e) => handleRequestDataChange('contactType', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="EMAIL">อีเมล</option>
+                    <option value="PHONE">โทรศัพท์</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ประเภทการใช้งาน *
+                  </label>
+                  <select
+                    value={requestData.durationType}
+                    onChange={(e) => handleRequestDataChange('durationType', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="PERMANENT">ถาวร</option>
+                    <option value="TEMPORARY">ชั่วคราว</option>
+                  </select>
+                </div>
+
+                {requestData.durationType === 'TEMPORARY' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      วันหมดอายุ *
+                    </label>
+                    <input
+                      type="date"
+                      value={requestData.expiresAt}
+                      onChange={(e) => handleRequestDataChange('expiresAt', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleRequestCancel}
+                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleRequestSubmit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                ส่งคำขอ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Renewal Modal */}
+      {showRenewalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              ขอต่ออายุโดเมน
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  เลือกโดเมนที่ต้องการต่ออายุ *
+                </label>
+                <select
+                  value={renewalData.domainId}
+                  onChange={(e) => setRenewalData(prev => ({ ...prev, domainId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- เลือกโดเมน --</option>
+                  {[...activeDomains, ...expiredDomains].map((domain) => (
+                    <option key={domain.id} value={domain.id}>
+                      {domain.domainRequest.domain} 
+                      {domain.status === 'EXPIRED' ? ' (หมดอายุ)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  วันหมดอายุใหม่ *
+                </label>
+                <input
+                  type="date"
+                  value={renewalData.newExpiryDate}
+                  onChange={(e) => setRenewalData(prev => ({ ...prev, newExpiryDate: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  เหตุผลในการต่ออายุ
+                </label>
+                <textarea
+                  value={renewalData.reason}
+                  onChange={(e) => setRenewalData(prev => ({ ...prev, reason: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="ระบุเหตุผล (ไม่บังคับ)"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleRenewalCancel}
+                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleRenewalSubmit}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ส่งคำขอ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -265,12 +921,15 @@ interface DomainCardProps {
   domain: Domain
   isGuest: boolean
   isAdmin: boolean
-  onDelete: (domainId: string) => void
+  onDelete: (domainId: string, domainName: string, isInTrash: boolean) => void
+  onRestore?: (domainId: string, domainName: string) => void
+  onRenew?: (domainId: string, domainName: string) => void
   isTrashed?: boolean
+  showRenewButton?: boolean
 }
 
-const DomainCard = ({ domain, isGuest, isAdmin, onDelete, isTrashed = false }: DomainCardProps) => {
-  const [showDeleteButton, setShowDeleteButton] = useState(false)
+const DomainCard = ({ domain, isGuest, isAdmin, onDelete, onRestore, onRenew, isTrashed = false, showRenewButton = false }: DomainCardProps) => {
+  const [showActionButtons, setShowActionButtons] = useState(false)
   
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('th-TH', {
@@ -296,17 +955,60 @@ const DomainCard = ({ domain, isGuest, isAdmin, onDelete, isTrashed = false }: D
       className={`bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow relative ${
         isTrashed ? 'border-l-4 border-red-500' : ''
       }`}
-      onMouseEnter={() => setShowDeleteButton(true)}
-      onMouseLeave={() => setShowDeleteButton(false)}
+      onMouseEnter={() => setShowActionButtons(true)}
+      onMouseLeave={() => setShowActionButtons(false)}
     >
-      {/* Delete Button for Admin */}
-      {isAdmin && showDeleteButton && !isTrashed && (
-        <button
-          onClick={() => onDelete(domain.id)}
-          className="absolute -top-2 -right-2 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors z-10"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+      {/* Action Buttons for Admin */}
+      {isAdmin && showActionButtons && (
+        <div className="absolute -top-2 -right-2 flex space-x-1">
+          {/* Restore Button (only for trashed domains) */}
+          {isTrashed && onRestore && (
+            <button
+              onClick={() => onRestore(domain.id, domain.domainRequest.domain)}
+              className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors z-10"
+              title="กู้คืน"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Renew Button (only for expired domains) */}
+          {showRenewButton && onRenew && (
+            <button
+              onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
+              className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors z-10"
+              title="ขอต่ออายุ"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          )}
+          
+          {/* Delete Button */}
+          <button
+            onClick={() => onDelete(domain.id, domain.domainRequest.domain, isTrashed)}
+            className={`w-8 h-8 text-white rounded-full flex items-center justify-center transition-colors z-10 ${
+              isTrashed 
+                ? 'bg-red-800 hover:bg-red-900' 
+                : 'bg-red-600 hover:bg-red-700'
+            }`}
+            title={isTrashed ? 'ลบถาวร' : 'ย้ายไปถังขยะ'}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Renew Button for regular users on expired domains */}
+      {!isAdmin && showRenewButton && onRenew && (
+        <div className="absolute -top-2 -right-2">
+          <button
+            onClick={() => onRenew(domain.id, domain.domainRequest.domain)}
+            className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors z-10"
+            title="ขอต่ออายุ"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
       )}
       
       <div className="flex justify-between items-start mb-4">

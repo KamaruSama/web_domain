@@ -4,6 +4,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   // ลบข้อมูลเก่าทั้งหมด
+  await prisma.renewalRequest.deleteMany()
   await prisma.domain.deleteMany()
   await prisma.domainRequest.deleteMany()
   await prisma.user.deleteMany()
@@ -118,6 +119,67 @@ async function main() {
     }
   })
 
+  // สร้าง Request สำหรับโดเมนที่หมดอายุ
+  const expiredRequest = await prisma.domainRequest.create({
+    data: {
+      domain: 'expired.nstru.ac.th',
+      purpose: 'ระบบที่หมดอายุแล้ว',
+      ipAddress: '192.168.1.150',
+      requesterName: 'นายหมดอายุ ต้องต่อ',
+      responsibleName: 'นายหมดอายุ ต้องต่อ',
+      department: 'ฝ่ายทดสอบ',
+      contact: 'expired@nstru.ac.th',
+      durationType: 'TEMPORARY',
+      expiresAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // หมดอายุ 3 วันแล้ว
+      status: 'APPROVED',
+      userId: user01.id,
+    }
+  })
+
+  // สร้าง Domain ที่หมดอายุ
+  const expiredDomain = await prisma.domain.create({
+    data: {
+      domainRequestId: expiredRequest.id,
+      status: 'EXPIRED',
+      lastUsedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+    }
+  })
+
+  // สร้าง Renewal Requests ตัวอย่าง
+  await prisma.renewalRequest.create({
+    data: {
+      domainId: expiredDomain.id,
+      newExpiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 วันจากตอนนี้
+      reason: 'ยังคงใช้งานอยู่ ขอต่ออายุอีก 90 วัน',
+      status: 'PENDING',
+      userId: user01.id
+    }
+  })
+
+  // สร้าง Renewal Request ที่อนุมัติแล้ว
+  const approvedRenewal = await prisma.renewalRequest.create({
+    data: {
+      domainId: expiredDomain.id,
+      newExpiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 วันจากตอนนี้
+      reason: 'ต่ออายุครั้งที่ 2',
+      status: 'APPROVED',
+      userId: user02.id,
+      approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 ชั่วโมง
+    }
+  })
+
+  // สร้าง Renewal Request ที่ไม่อนุมัติ
+  await prisma.renewalRequest.create({
+    data: {
+      domainId: expiredDomain.id,
+      newExpiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 ปี
+      reason: 'ขอต่ออายุยาวๆ',
+      status: 'REJECTED',
+      userId: user02.id,
+      approvalCooldownAt: new Date(Date.now() + 60 * 60 * 1000) // 1 ชั่วโมง
+    }
+  })
+
   console.log('✅ Database seeded successfully!')
   console.log('📝 Created users:')
   console.log('   - Admin: username=admin, password=admin123')
@@ -125,6 +187,8 @@ async function main() {
   console.log('   - User02: username=user02, password=passuser02')
   console.log('📋 Created sample domain requests with different statuses')
   console.log('🗑️ Created sample trashed domain')
+  console.log('⏰ Created sample expired domain')
+  console.log('🔄 Created sample renewal requests (pending, approved, rejected)')
 }
 
 main()

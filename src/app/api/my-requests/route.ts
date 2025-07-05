@@ -11,10 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Admin can see all requests, regular users can only see their own
+    const whereClause = session.user.role === 'ADMIN' ? {} : { userId: session.user.id }
+
     const requests = await prisma.domainRequest.findMany({
-      where: {
-        userId: session.user.id
-      },
+      where: whereClause,
       include: {
         domain_record: true,
         user: {

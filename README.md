@@ -1,411 +1,197 @@
 # 🌐 ระบบขอใช้โดเมน - มหาวิทยาลัยราชภัฏนครศรีธรรมราช
 
-<div align="center">
+ระบบจัดการคำขอใช้ชื่อโดเมนที่สมบูรณ์แบบ พร้อมฟีเจอร์ครบครัน
 
-![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=for-the-badge&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)
-![Framer Motion](https://img.shields.io/badge/Framer%20Motion-11+-pink?style=for-the-badge&logo=framer)
-![Prisma](https://img.shields.io/badge/Prisma-5+-2D3748?style=for-the-badge&logo=prisma)
+## 🚀 Quick Start
 
-**ระบบจัดการคำขอใช้ชื่อโดเมนที่ทันสมัย พร้อม Glass Morphism Design**
+### การติดตั้งอัตโนมัติ (แนะนำ)
+```bash
+cd C:\Users\kkhem\Downloads\fnon
+npm run setup
+```
 
-[🚀 เริ่มต้นใช้งาน](#-การติดตั้ง) • [📖 เอกสาร](#-เอกสารการใช้งาน) • [🎨 Demo](#-demo) • [🤝 การมีส่วนร่วม](#-การมีส่วนร่วม)
+### การติดตั้งแบบทีละขั้นตอน
+```bash
+# 1. ติดตั้ง dependencies
+npm install
 
-</div>
+# 2. ตั้งค่า database
+npm run db:push
 
----
+# 3. ใส่ข้อมูลตัวอย่าง
+npm run db:seed
 
-## ✨ คุณสมบัติเด่น
+# 4. เริ่มต้น development server
+npm run dev
+```
 
-### 🎨 **Modern Glass Design**
-- **Glass Morphism Effects** - เอฟเฟกต์แก้วโปร่งใสทันสมัย
-- **Orange Theme** - ธีมสีส้มที่สวยงามและอบอุ่น
-- **Smooth Animations** - แอนิเมชันที่ลื่นไหลด้วย Framer Motion
-- **Responsive Design** - รองรับทุกขนาดหน้าจอ
+เปิด [http://localhost:3000](http://localhost:3000) ใน browser
 
-### 🚀 **เทคโนโลยีล้ำสมัย**
-- **Next.js 14+** App Router - เฟรมเวิร์กที่เร็วและมีประสิทธิภาพ
-- **TypeScript** - Type Safety เพื่อความปลอดภัย
-- **Tailwind CSS 4.0** - Utility-first CSS Framework
-- **Prisma ORM** - Object-Relational Mapping ที่ทันสมัย
-- **NextAuth.js** - การยืนยันตัวตนที่ปลอดภัย
+## 👥 บัญชีทดสอบ
 
-### 🔐 **ระบบความปลอดภัย**
-- การยืนยันตัวตนด้วย Username/Password
-- การจัดการสิทธิ์ Admin และ User
-- ป้องกันการเข้าถึงที่ไม่ได้รับอนุญาต
-- การเข้ารหัสข้อมูลที่ปลอดภัย
+- **Admin:** `admin` / `admin123`
+- **User1:** `user01` / `passuser01`  
+- **User2:** `user02` / `passuser02`
 
-### 📋 **การจัดการโดเมนครบวงจร**
-- ส่งคำขอใช้โดเมนพร้อมข้อมูลครบถ้วน
-- ระบบอนุมัติ/ปฏิเสธของ Admin
-- การจัดการโดเมนแบบถาวรและชั่วคราว
-- ระบบต่ออายุและถังขยะอัตโนมัติ
+## ✨ ฟีเจอร์หลัก
 
----
+### 🎯 ระบบคำขอใช้โดเมน
+- ✅ ส่งคำขอใหม่จากหน้าแรก
+- ✅ ระบบอนุมัติ/ไม่อนุมัติ
+- ✅ ติดตามสถานะคำขอ
+- ✅ จัดการโดเมนถาวร/ชั่วคราว
 
-## 🛠️ การติดตั้ง
+### 🔄 ระบบต่ออายุ (ใหม่!)
+- ✅ ขอต่ออายุแบบเลือกวันที่
+- ✅ ระบุเหตุผลในการต่ออายุ
+- ✅ ระบบตั๋วต่ออายุแยกต่างหาก
+- ✅ หน้าจัดการคำขอต่ออายุสำหรับ admin
 
-### 📋 ข้อกำหนดของระบบ
+### 📊 ระบบจัดการ
+- ✅ หมวดโดเมนหมดอายุ
+- ✅ ระบบถังขยะ (90 วัน)
+- ✅ กู้คืนโดเมน
+- ✅ ประวัติการลบ
 
-- **Node.js** 18.0+ 
-- **npm** หรือ **yarn** หรือ **pnpm**
-- **Git** สำหรับ Version Control
+### 🔐 ระบบสิทธิ์
+- ✅ User: ดูเฉพาะคำขอของตนเอง
+- ✅ Admin: ดูและจัดการทั้งหมด
+- ✅ ระบบ Authentication ด้วย NextAuth
+- ✅ เปลี่ยนรหัสผ่าน
 
-### ⚡ Quick Start
+## 🗂️ โครงสร้างหน้าเว็บ
+
+| หน้า | URL | สิทธิ์ | คำอธิบาย |
+|------|-----|--------|----------|
+| หน้าแรก | `/` | ทุกคน | ดูโดเมน + ส่งคำขอใหม่ + ขอต่ออายุ |
+| คำขอของฉัน | `/my-tickets` | ล็อกอิน | ดูคำขอส่วนตัว (admin เห็นทั้งหมด) |
+| จัดการคำขอต่ออายุ | `/renewal-management` | Admin | อนุมัติ/ไม่อนุมัติคำขอต่ออายุ |
+| จัดการระบบ | `/admin` | Admin | จัดการผู้ใช้ + คำขอที่ซ่อน |
+| เข้าสู่ระบบ | `/login` | ทุกคน | Authentication |
+| เปลี่ยนรหัสผ่าน | `/change-password` | ล็อกอิน | เปลี่ยนรหัสผ่าน |
+
+## 📋 ข้อมูลตัวอย่าง
+
+ระบบมีข้อมูลตัวอย่างพร้อมใช้งาน:
+- **โดเมนใช้งาน:** library.nstru.ac.th
+- **โดเมนหมดอายุ:** expired.nstru.ac.th  
+- **โดเมนในถังขยะ:** old.nstru.ac.th
+- **คำขอรอพิจารณา:** event.nstru.ac.th
+- **คำขอต่ออายุ:** หลายสถานะ
+
+## 🔧 คำสั่งที่มีประโยชน์
 
 ```bash
-# 1. Clone โปรเจค
-git clone https://github.com/your-username/domain-request-system.git
-cd domain-request-system
+# Development
+npm run dev          # เริ่มต้น development server
+npm run build        # Build สำหรับ production
+npm run start        # เริ่มต้น production server
 
-# 2. ติดตั้ง Dependencies
-npm install
-# หรือ
-yarn install
-# หรือ
-pnpm install
-
-# 3. ตั้งค่าฐานข้อมูล
-npx prisma generate
-npx prisma db push
-npx prisma db seed
-
-# 4. สร้างไฟล์ Environment Variables
-cp .env.example .env
-
-# 5. รันโปรเจค
-npm run dev
-# หรือ
-yarn dev
-# หรือ
-pnpm dev
-```
-
-### 🔧 การตั้งค่า Environment Variables
-
-สร้างไฟล์ `.env` และเพิ่มค่าดังนี้:
-
-```env
 # Database
-DATABASE_URL="file:./dev.db"
+npm run db:studio    # เปิด Prisma Studio
+npm run db:reset     # รีเซ็ต database + seed ใหม่
+npm run cleanup      # ย้ายโดเมนหมดอายุไปถังขยะ
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Optional: สำหรับ Production
-# NEXTAUTH_URL="https://your-domain.com"
+# Testing & Setup
+npm run setup        # ติดตั้งระบบอัตโนมัติ
+npm run test:system  # ทดสอบระบบทั้งหมด
+npm run lint         # ตรวจสอบ code quality
 ```
-
----
 
 ## 🎯 การใช้งาน
 
-### 👤 **บัญชีทดสอบ**
+### สำหรับ User ธรรมดา
+1. **ส่งคำขอใหม่:** หน้าแรก → "ส่งคำขอใช้โดเมน"
+2. **ขอต่ออายุ:** หน้าแรก → "ขอต่ออายุ" → เลือกโดเมน
+3. **ติดตามคำขอ:** `/my-tickets` → ดูสถานะคำขอ
+4. **ลบคำขอ:** `/my-tickets` → ลบคำขอที่รอพิจารณา
 
-| บทบาท | Username | Password | สิทธิ์ |
-|--------|----------|----------|--------|
-| 👑 Admin | `admin` | `admin123` | จัดการระบบทั้งหมด |
-| 👤 User | `user01` | `passuser01` | ส่งคำขอโดเมน |
-| 👤 User | `user02` | `passuser02` | ส่งคำขอโดเมน |
+### สำหรับ Admin
+1. **อนุมัติคำขอ:** `/my-tickets` → อนุมัติ/ไม่อนุมัติ
+2. **จัดการคำขอต่ออายุ:** `/renewal-management`
+3. **จัดการโดเมน:** หน้าแรก → ลบ/กู้คืน
+4. **จัดการผู้ใช้:** `/admin` → เพิ่ม/ลบผู้ใช้
 
-### 🌐 **หน้าเว็บหลัก**
+## 🛠️ เทคโนโลยี
 
-| เส้นทาง | รายละเอียด | สิทธิ์ |
-|---------|------------|--------|
-| `/` | หน้าแรก - แสดงโดเมนทั้งหมด | ทุกคน |
-| `/login` | เข้าสู่ระบบ | ทุกคน |
-| `/request` | ส่งคำขอใช้โดเมน | ผู้ใช้ที่ล็อกอิน |
-| `/my-tickets` | คำขอของฉัน | ผู้ใช้ที่ล็อกอิน |
-| `/admin` | จัดการระบบ | Admin เท่านั้น |
-| `/change-password` | เปลี่ยนรหัสผ่าน | ผู้ใช้ที่ล็อกอิน |
-| `/demo` | สาธิต Components | ทุกคน |
+- **Frontend:** Next.js 15 + React 19 + TypeScript
+- **Styling:** Tailwind CSS + Framer Motion
+- **Database:** SQLite + Prisma ORM
+- **Authentication:** NextAuth.js
+- **Icons:** Lucide React
+
+## 📁 โครงสร้างโปรเจค
+
+```
+src/
+├── app/                    # Next.js app router
+│   ├── api/               # API routes
+│   ├── admin/             # Admin pages
+│   ├── my-tickets/        # User tickets
+│   ├── renewal-management/ # Renewal management
+│   └── ...
+├── components/            # React components
+├── lib/                   # Utilities
+└── types/                 # TypeScript types
+
+prisma/
+├── schema.prisma         # Database schema
+└── seed.ts              # Sample data
+
+scripts/
+├── setup.js             # Auto setup script
+├── test-system.js       # System testing
+└── cleanup.js          # Cleanup utilities
+```
+
+## 📚 เอกสารเพิ่มเติม
+
+- **[SETUP.md](./SETUP.md)** - คู่มือการติดตั้งและใช้งานแบบละเอียด
+- **[CHANGELOG.md](./CHANGELOG.md)** - สรุปการเปลี่ยนแปลงล่าสุด
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - ภาพรวมระบบทั้งหมด
+
+## 🎉 สรุป
+
+ระบบขอใช้โดเมนเวอร์ชั่นใหม่นี้:
+- **ใช้งานง่าย** - ฟอร์มส่งคำขอในหน้าแรก
+- **ครบครัน** - ระบบต่ออายุ + จัดการสิทธิ์
+- **ปลอดภัย** - ระบบสิทธิ์ + Authentication
+- **ทันสมัย** - UI/UX สวยงาม + responsive
+
+**พร้อมใช้งานจริง! 🚀**
 
 ---
 
-## 🏗️ โครงสร้างโปรเจค
+## 🔍 การแก้ไขปัญหา
 
-```
-fnon/
-├── 📁 prisma/              # Database Schema & Seed
-│   ├── schema.prisma       # โครงสร้างฐานข้อมูล
-│   └── seed.ts            # ข้อมูลตัวอย่าง
-├── 📁 src/
-│   ├── 📁 app/            # Next.js App Router
-│   │   ├── 📁 admin/      # หน้าแอดมิน
-│   │   ├── 📁 api/        # API Routes
-│   │   ├── 📁 demo/       # หน้าสาธิต Components
-│   │   ├── 📁 login/      # หน้าล็อกอิน
-│   │   ├── 📁 my-tickets/ # หน้าคำขอของฉัน
-│   │   ├── 📁 request/    # หน้าส่งคำขอ
-│   │   ├── layout.tsx     # Layout หลัก
-│   │   ├── page.tsx       # หน้าแรก
-│   │   └── globals.css    # CSS ทั่วโลก
-│   ├── 📁 components/     # Components ที่ใช้ซ้ำได้
-│   │   ├── AnimatedButton.tsx    # ปุ่มแอนิเมชัน
-│   │   ├── AnimatedInput.tsx     # Input แอนิเมชัน
-│   │   ├── GlassCard.tsx         # การ์ด Glass Effect
-│   │   ├── LoadingSpinner.tsx    # Loading Components
-│   │   ├── PageTransition.tsx    # Page Transitions
-│   │   ├── AuthProvider.tsx      # Provider สำหรับ Auth
-│   │   └── LogoutButton.tsx      # ปุ่มออกจากระบบ
-│   ├── 📁 lib/            # Utilities & Helpers
-│   └── 📁 types/          # TypeScript Types
-├── 📄 package.json        # Dependencies
-├── 📄 tailwind.config.ts  # Tailwind Configuration
-├── 📄 DESIGN_UPDATE.md    # เอกสารการอัปเดตดีไซน์
-└── 📄 README.md          # เอกสารนี้
-```
-
----
-
-## 🎨 Demo
-
-เข้าชมหน้าสาธิต Components ต่างๆ ได้ที่:
-
-```
-http://localhost:3000/demo
-```
-
-### 🌟 **สิ่งที่จะเห็นใน Demo:**
-- **Glass Cards** ในรูปแบบต่างๆ
-- **Animated Buttons** หลากหลายสไตล์
-- **Animated Inputs** พร้อมไอคอนและเอฟเฟกต์
-- **Loading Spinners** ขนาดต่างๆ
-- **Animation Examples** แบบต่างๆ
-
----
-
-## 🎨 Design System
-
-### 🎯 **สีหลัก (Orange Theme)**
-
-```css
-/* สีหลัก */
---color-primary: #ea580c;      /* Orange 600 */
---color-primary-hover: #c2410c; /* Orange 700 */
---color-accent: #f97316;        /* Orange 500 */
-
-/* สีรอง */
---color-success: #16a34a;       /* Green 600 */
---color-danger: #dc2626;        /* Red 600 */
---color-warning: #f59e0b;       /* Yellow 500 */
-```
-
-### 🪟 **Glass Effects**
-
-```css
-/* Glass Morphism พื้นฐาน */
-.glass-morphism {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-/* Glass Morphism สีส้ม */
-.glass-morphism-orange {
-  background: linear-gradient(135deg, 
-    rgba(254, 215, 170, 0.4), 
-    rgba(253, 186, 116, 0.4)
-  );
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(253, 186, 116, 0.3);
-}
-```
-
-### 🔤 **Typography**
-
-- **หลัก**: Sarabun (สำหรับภาษาไทย)
-- **รอง**: Inter (สำหรับภาษาอังกฤษ)
-- **Fallback**: system-ui, sans-serif
-
----
-
-## 🔧 API Routes
-
-### 🔐 **Authentication**
-- `POST /api/auth/[...nextauth]` - NextAuth.js Endpoints
-- `POST /api/change-password` - เปลี่ยนรหัสผ่าน
-
-### 📋 **Domain Requests**
-- `GET /api/requests` - ดึงคำขอทั้งหมด
-- `POST /api/requests` - สร้างคำขอใหม่
-- `PUT /api/requests/[id]` - อัปเดตคำขอ (อนุมัติ/ปฏิเสธ)
-- `DELETE /api/requests/[id]` - ลบคำขอ
-- `GET /api/my-requests` - ดึงคำขอของผู้ใช้
-
-### 🌐 **Domains**
-- `GET /api/domains` - ดึงโดเมนทั้งหมด
-- `POST /api/domains/[id]/renew` - ต่ออายุโดเมน
-
-### 👥 **Admin**
-- `GET /api/admin/users` - ดึงผู้ใช้ทั้งหมด
-- `POST /api/admin/users` - สร้างผู้ใช้ใหม่
-- `DELETE /api/admin/users/[id]` - ลบผู้ใช้
-
----
-
-## 🧪 การทดสอบ
-
-### 🚀 **การรันโปรเจค**
+### ปัญหาที่พบบ่อย
 
 ```bash
-# Development Mode
-npm run dev
+# ไม่สามารถเชื่อมต่อ database
+npm run db:reset
 
-# Production Build
-npm run build
-npm run start
+# Port 3000 ถูกใช้งานแล้ว
+npm run dev -- -p 3001
 
-# Type Checking
-npm run type-check
+# Module not found
+rm -rf node_modules package-lock.json
+npm install
 
-# Database Operations
-npx prisma studio          # เปิด Database Browser
-npx prisma db push         # ซิงค์ Schema กับ Database
-npx prisma db seed         # เพิ่มข้อมูลตัวอย่าง
-npx prisma generate        # สร้าง Prisma Client
+# ข้อมูลไม่ถูกต้อง
+npm run db:seed
 ```
 
-### 📱 **Responsive Testing**
+### การรายงานปัญหา
 
-ทดสอบในขนาดหน้าจอต่างๆ:
-- 📱 **Mobile**: 375px - 768px
-- 📺 **Tablet**: 768px - 1024px
-- 🖥️ **Desktop**: 1024px+
-
-### 🌐 **Browser Support**
-
-| Browser | Version | Support |
-|---------|---------|---------|
-| Chrome | 90+ | ✅ Full |
-| Firefox | 88+ | ✅ Full |
-| Safari | 14+ | ✅ Full |
-| Edge | 90+ | ✅ Full |
+หากพบปัญหาการใช้งาน:
+1. ตรวจสอบ console log
+2. ลอง reset database
+3. ตรวจสอบ server logs
+4. ดูเอกสาร SETUP.md
 
 ---
 
-## 📚 เอกสารการใช้งาน
+## 📄 ลิขสิทธิ์
 
-### 🎨 **Components Usage**
-
-#### 🃏 GlassCard
-```tsx
-import GlassCard from '@/components/GlassCard'
-
-<GlassCard variant="orange" hover className="p-6">
-  <h3>ชื่อการ์ด</h3>
-  <p>เนื้อหา</p>
-</GlassCard>
-```
-
-#### 🔘 AnimatedButton
-```tsx
-import AnimatedButton from '@/components/AnimatedButton'
-
-<AnimatedButton 
-  variant="primary" 
-  loading={isLoading}
-  onClick={handleClick}
->
-  <Icon className="w-4 h-4 mr-2" />
-  คลิกที่นี่
-</AnimatedButton>
-```
-
-#### 📝 AnimatedInput
-```tsx
-import AnimatedInput from '@/components/AnimatedInput'
-
-<AnimatedInput
-  label="ป้ายกำกับ"
-  placeholder="กรอกข้อมูล"
-  icon={<Icon className="w-5 h-5" />}
-  error={errorMessage}
-  value={value}
-  onChange={setValue}
-/>
-```
-
-### 🎭 **Animations**
-
-```tsx
-import { 
-  PageTransition, 
-  FadeIn, 
-  SlideIn, 
-  StaggerContainer,
-  StaggerItem 
-} from '@/components/PageTransition'
-
-<PageTransition>
-  <FadeIn delay={0.2}>
-    <h1>หัวข้อ</h1>
-  </FadeIn>
-  
-  <StaggerContainer>
-    <StaggerItem>
-      <div>รายการ 1</div>
-    </StaggerItem>
-    <StaggerItem>
-      <div>รายการ 2</div>
-    </StaggerItem>
-  </StaggerContainer>
-</PageTransition>
-```
-
----
-
-## 🤝 การมีส่วนร่วม
-
-เรายินดีรับการมีส่วนร่วมจากทุกคน! 
-
-### 🐛 **รายงานปัญหา**
-หากพบปัญหาหรือ Bug กรุณาสร้าง Issue ใน GitHub
-
-### 💡 **เสนอคุณสมบัติใหม่**
-มีไอเดียคุณสมบัติใหม่? สร้าง Feature Request ได้เลย
-
-### 🔧 **ส่ง Pull Request**
-1. Fork โปรเจค
-2. สร้าง Feature Branch (`git checkout -b feature/amazing-feature`)
-3. Commit การเปลี่ยนแปลง (`git commit -m 'Add amazing feature'`)
-4. Push ไปยัง Branch (`git push origin feature/amazing-feature`)
-5. สร้าง Pull Request
-
----
-
-## 📄 License
-
-โปรเจคนี้ใช้ [MIT License](LICENSE) - ดูรายละเอียดในไฟล์ LICENSE
-
----
-
-## 👨‍💻 ผู้พัฒนา
-
-**มหาวิทยาลัยราชภัฏนครศรีธรรมราช**
-- 🌐 Website: [https://www.nstru.ac.th](https://www.nstru.ac.th)
-- 📧 Email: it@nstru.ac.th
-
----
-
-## 🙏 ขอบคุณ
-
-- [Next.js](https://nextjs.org/) - React Framework
-- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
-- [Framer Motion](https://www.framer.com/motion/) - Animation Library
-- [Prisma](https://www.prisma.io/) - Database ORM
-- [NextAuth.js](https://next-auth.js.org/) - Authentication
-- [Lucide Icons](https://lucide.dev/) - Icon Library
-
----
-
-<div align="center">
-
-**⭐ ถ้าโปรเจคนี้มีประโยชน์ กรุณาให้ Star ⭐**
-
-Made with ❤️ by NSTRU IT Department
-
-</div>
+**มหาวิทยาลัยราชภัฏนครศรีธรรมราช**  
+พัฒนาโดย: ฝ่ายเทคโนโลยีสารสนเทศ

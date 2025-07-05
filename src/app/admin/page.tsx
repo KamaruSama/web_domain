@@ -291,8 +291,11 @@ export default function AdminPage() {
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 หน้าแรก
               </Link>
-              <Link href="/request" className="text-gray-600 hover:text-gray-900">
-                ขอใช้โดเมน
+              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
+                คำขอทั้งหมด
+              </Link>
+              <Link href="/renewal-management" className="text-gray-600 hover:text-gray-900">
+                จัดการคำขอต่ออายุ
               </Link>
               <Link href="/change-password" className="text-gray-600 hover:text-gray-900">
                 เปลี่ยนรหัสผ่าน

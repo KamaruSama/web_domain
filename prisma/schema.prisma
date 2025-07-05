@@ -21,6 +21,7 @@ model User {
   createdAt DateTime @default(now())
   
   domainRequests DomainRequest[]
+  renewalRequests RenewalRequest[]
   
   @@map("users")
 }
@@ -58,6 +59,7 @@ model Domain {
   status          DomainStatus  @default(ACTIVE)
   
   domainRequest   DomainRequest @relation(fields: [domainRequestId], references: [id], onDelete: Cascade)
+  renewalRequests RenewalRequest[]
   
   @@map("domains")
 }
@@ -69,6 +71,22 @@ model DeletedDomainLog {
   reason          String
   
   @@map("deleted_domain_logs")
+}
+
+model RenewalRequest {
+  id                   String         @id @default(cuid())
+  domainId             String
+  newExpiryDate        DateTime
+  reason               String?
+  requestedAt          DateTime       @default(now())
+  status               RequestStatus  @default(PENDING)
+  approvalCooldownAt   DateTime?
+  
+  userId               String
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain               Domain         @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  
+  @@map("renewal_requests")
 }
 
 enum ContactType {
