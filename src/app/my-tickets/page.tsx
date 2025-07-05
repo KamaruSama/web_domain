@@ -467,7 +467,7 @@ export default function MyTicketsPage() {
           <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'domains' ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Search className="w-4 h-4 mr-1" />
                 ค้นหา
               </label>
@@ -482,7 +482,7 @@ export default function MyTicketsPage() {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Settings2 className="w-4 h-4 mr-1" />
                 สถานะ
               </label>
@@ -501,7 +501,7 @@ export default function MyTicketsPage() {
             {/* Duration Type Filter - only for domain requests */}
             {activeTab === 'domains' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
                   ประเภท
                 </label>
@@ -519,7 +519,7 @@ export default function MyTicketsPage() {
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <SortAsc className="w-4 h-4 mr-1" />
                 เรียงตาม
               </label>
@@ -538,7 +538,7 @@ export default function MyTicketsPage() {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 {filters.sortOrder === 'desc' ? 
                   <SortDesc className="w-4 h-4 mr-1" /> : 
                   <SortAsc className="w-4 h-4 mr-1" />
@@ -1136,14 +1136,10 @@ const RequestCard = ({
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center ${
-                request.domain_record?.status === 'TRASHED' 
-                  ? 'bg-red-700 text-white hover:bg-red-800' 
-                  : 'bg-red-600 text-white hover:bg-red-700'
-              }`}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center bg-red-600 text-white hover:bg-red-700`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              {request.domain_record?.status === 'TRASHED' ? 'ลบถาวร' : 'ลบ'}
+              ลบ
             </button>
           )}
         </div>
@@ -1269,14 +1265,10 @@ const RenewalRequestCard = ({ request, onDelete, onApprove, canDelete, showAppro
           {canDelete && !showApprovalButtons && (
             <button
               onClick={() => onDelete?.(request.id)}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center ${
-                request.domain_record?.status === 'TRASHED' 
-                  ? 'bg-red-700 text-white hover:bg-red-800' 
-                  : 'bg-red-600 text-white hover:bg-red-700'
-              }`}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors flex items-center justify-center bg-red-600 text-white hover:bg-red-700`}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              {request.domain_record?.status === 'TRASHED' ? 'ลบถาวร' : 'ลบ'}
+              ลบ
             </button>
           )}
         </div>
