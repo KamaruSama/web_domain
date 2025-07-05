@@ -271,7 +271,7 @@ export default function UsersManagementPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Search className="w-4 h-4 mr-1" />
                 ค้นหา
               </label>
@@ -286,7 +286,7 @@ export default function UsersManagementPage() {
 
             {/* Role Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Shield className="w-4 h-4 mr-1" />
                 บทบาท
               </label>
@@ -303,7 +303,7 @@ export default function UsersManagementPage() {
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <SortAsc className="w-4 h-4 mr-1" />
                 เรียงตาม
               </label>
@@ -320,7 +320,7 @@ export default function UsersManagementPage() {
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
                 {filters.sortOrder === 'desc' ? 
                   <SortDesc className="w-4 h-4 mr-1" /> : 
                   <SortAsc className="w-4 h-4 mr-1" />
@@ -396,7 +396,7 @@ export default function UsersManagementPage() {
               <form onSubmit={handleAddUser} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="text-sm font-medium text-gray-700 mb-2">
                       Username
                     </label>
                     <input
@@ -409,7 +409,7 @@ export default function UsersManagementPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="text-sm font-medium text-gray-700 mb-2">
                       บทบาท
                     </label>
                     <select
