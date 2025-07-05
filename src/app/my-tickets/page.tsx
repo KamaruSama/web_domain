@@ -150,13 +150,15 @@ export default function MyTicketsPage() {
 
   const fetchMyRenewalRequests = async () => {
     try {
-      const response = await fetch('/api/renewal-requests')
+      // Add 'my=true' parameter to get only user's renewal requests
+      const response = await fetch('/api/renewal-requests?my=true')
       
       if (response.ok) {
         const data = await response.json()
         setRenewalRequests(data)
       } else {
-        console.error('Failed to fetch renewal requests')
+        const errorData = await response.json()
+        console.error('Failed to fetch renewal requests:', errorData.error)
       }
     } catch (error) {
       console.error('Error fetching renewal requests:', error)
@@ -181,6 +183,18 @@ export default function MyTicketsPage() {
       console.error('Error deleting request:', error)
       alert('เกิดข้อผิดพลาดในการลบคำขอ')
     }
+  }
+
+  const handleTabChange = (tab: 'domains' | 'renewals') => {
+    setActiveTab(tab)
+    // Reset filters to avoid conflicts between different tab contexts
+    setFilters({
+      search: '',
+      status: 'ALL',
+      durationType: 'ALL',
+      sortBy: 'requestedAt',
+      sortOrder: 'desc'
+    })
   }
 
   const handleDeleteRenewalRequest = async (requestId: string) => {
@@ -285,6 +299,10 @@ export default function MyTicketsPage() {
       case 'requestedAt':
         aValue = a.requestedAt
         bValue = b.requestedAt
+        break
+      case 'newExpiryDate':
+        aValue = a.newExpiryDate
+        bValue = b.newExpiryDate
         break
       default:
         aValue = a.requestedAt
@@ -454,7 +472,7 @@ export default function MyTicketsPage() {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
               <button
-                onClick={() => setActiveTab('domains')}
+                onClick={() => handleTabChange('domains')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'domains'
                     ? 'border-blue-500 text-blue-600'
@@ -467,7 +485,7 @@ export default function MyTicketsPage() {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('renewals')}
+                onClick={() => handleTabChange('renewals')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'renewals'
                     ? 'border-green-500 text-green-600'

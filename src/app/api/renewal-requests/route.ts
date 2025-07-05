@@ -5,14 +5,36 @@ import prisma from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('=== DEBUG: Starting GET /api/renewal-requests ===')
+    
     const session = await getServerSession(authOptions)
+    console.log('Session:', session ? 'Found' : 'Not found')
     
     if (!session) {
+      console.log('No session, returning 401')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Admin can see all renewal requests, regular users can only see their own
-    const whereClause = session.user.role === 'ADMIN' ? {} : { userId: session.user.id }
+    // Check if this is for my-tickets page (get only user's requests)
+    const url = new URL(request.url)
+    const my = url.searchParams.get('my')
+    console.log('MY parameter:', my)
+    console.log('User role:', session.user.role)
+
+    // If 'my' parameter is present, filter by user. Otherwise, admin sees all.
+    let whereClause = {}
+    
+    if (my === 'true' || session.user.role !== 'ADMIN') {
+      // Regular users or when specifically requested, show only own requests
+      whereClause = { userId: session.user.id }
+      console.log('Using user filter, userId:', session.user.id)
+    } else {
+      console.log('Admin view, no user filter')
+    }
+    // Admin without 'my' parameter sees all requests (for renewal-management page)
+
+    console.log('Where clause:', whereClause)
+    console.log('About to query prisma.renewalRequest.findMany...')
 
     const renewalRequests = await prisma.renewalRequest.findMany({
       where: whereClause,
@@ -41,10 +63,21 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    console.log('Successfully fetched renewal requests. Count:', renewalRequests.length)
     return NextResponse.json(renewalRequests)
+    
   } catch (error) {
-    console.error('Error fetching renewal requests:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('=== ERROR in GET /api/renewal-requests ===')
+    console.error('Error name:', error.name)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    console.error('Full error object:', error)
+    
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error.message,
+      type: error.name
+    }, { status: 500 })
   }
 }
 
