@@ -28,15 +28,31 @@ interface User {
   username: string
   role: string
   createdAt: string
+  position?: {
+    id: string
+    name: string
+    description?: string
+  }
+}
+
+interface Position {
+  id: string
+  name: string
+  description?: string
 }
 
 export default function UsersManagementPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
+  const [positions, setPositions] = useState<Position[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddUser, setShowAddUser] = useState(false)
-  const [newUser, setNewUser] = useState({ username: '', role: 'USER' })
+  const [newUser, setNewUser] = useState({ 
+    username: '', 
+    role: 'USER', 
+    positionId: '' 
+  })
   const [generatedPassword, setGeneratedPassword] = useState('')
   
   // Filter states
@@ -53,6 +69,7 @@ export default function UsersManagementPage() {
       return
     }
     fetchUsers()
+    fetchPositions()
   }, [session, router])
 
   const fetchUsers = async () => {
@@ -66,6 +83,18 @@ export default function UsersManagementPage() {
       console.error('Error fetching users:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchPositions = async () => {
+    try {
+      const response = await fetch('/api/admin/positions')
+      if (response.ok) {
+        const data = await response.json()
+        setPositions(data)
+      }
+    } catch (error) {
+      console.error('Error fetching positions:', error)
     }
   }
 
@@ -85,14 +114,15 @@ export default function UsersManagementPage() {
         },
         body: JSON.stringify({
           username: newUser.username.trim(),
-          role: newUser.role
+          role: newUser.role,
+          positionId: newUser.positionId || null
         })
       })
 
       if (response.ok) {
         const result = await response.json()
         setGeneratedPassword(result.password)
-        setNewUser({ username: '', role: 'USER' })
+        setNewUser({ username: '', role: 'USER', positionId: '' })
         fetchUsers()
         // Don't hide the form immediately to show the generated password
       } else {
@@ -172,7 +202,7 @@ export default function UsersManagementPage() {
 
   const closeAddUserForm = () => {
     setShowAddUser(false)
-    setNewUser({ username: '', role: 'USER' })
+    setNewUser({ username: '', role: 'USER', positionId: '' })
     setGeneratedPassword('')
   }
 
@@ -390,7 +420,7 @@ export default function UsersManagementPage() {
               )}
 
               <form onSubmit={handleAddUser} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2">
                       Username
@@ -415,6 +445,23 @@ export default function UsersManagementPage() {
                     >
                       <option value="USER">ผู้ใช้ทั่วไป</option>
                       <option value="ADMIN">ผู้ดูแลระบบ</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2">
+                      ยศ/ตำแหน่ง
+                    </label>
+                    <select
+                      value={newUser.positionId}
+                      onChange={(e) => setNewUser({ ...newUser, positionId: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">ไม่ระบุตำแหน่ง</option>
+                      {positions.map((position) => (
+                        <option key={position.id} value={position.id}>
+                          {position.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -472,6 +519,11 @@ export default function UsersManagementPage() {
                           </>
                         )}
                       </span>
+                      {user.position && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {user.position.name}
+                        </span>
+                      )}
                       <span className="flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
                         {formatDate(user.createdAt)}

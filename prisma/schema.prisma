@@ -14,16 +14,30 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  username   String    @unique
+  password   String
+  role       Role      @default(USER)
+  positionId String?
+  createdAt  DateTime  @default(now())
   
-  domainRequests DomainRequest[]
+  position        Position? @relation(fields: [positionId], references: [id])
+  domainRequests  DomainRequest[]
   renewalRequests RenewalRequest[]
   
   @@map("users")
+}
+
+model Position {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  users User[]
+  
+  @@map("positions")
 }
 
 model DomainRequest {
