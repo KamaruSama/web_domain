@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await prisma.user.findMany({
+      include: {
+        position: true
+      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -33,10 +36,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { username, password, role } = body
+    const { username, role, positionId } = body
+
+    // Generate random password
+    const password = Math.random().toString(36).slice(-8)
 
     // Validate required fields
-    if (!username || !password || !role) {
+    if (!username || !role) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -54,11 +60,19 @@ export async function POST(request: NextRequest) {
       data: {
         username,
         password, // Plain text as per requirements
-        role
+        role,
+        positionId: positionId || null
+      },
+      include: {
+        position: true
       }
     })
 
-    return NextResponse.json(newUser, { status: 201 })
+    // Return user data with generated password
+    return NextResponse.json({ 
+      user: newUser, 
+      password 
+    }, { status: 201 })
   } catch (error) {
     console.error('Error creating user:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

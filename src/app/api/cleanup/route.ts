@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const now = new Date()
     
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Move expired domains to trash
     const trashedCount = await Promise.all(
-      expiredDomains.map(async (domain) => {
+      expiredDomains.map(async (domain: { id: string }) => {
         const trashExpiry = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
         
         return await prisma.domain.update({
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Log domains before permanent deletion
     await Promise.all(
-      oldTrashedDomains.map(async (domain) => {
+      oldTrashedDomains.map(async (domain: { domainRequest: { domain: string } }) => {
         await prisma.deletedDomainLog.create({
           data: {
             domainName: domain.domainRequest.domain,
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     await prisma.domainRequest.deleteMany({
       where: {
         id: {
-          in: oldTrashedDomains.map(d => d.domainRequestId)
+          in: oldTrashedDomains.map((d: { domainRequestId: string }) => d.domainRequestId)
         }
       }
     })
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
 // For security, you might want to add authentication or API key check here
 // This is a simple implementation - in production, use proper authentication
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     message: 'Cleanup endpoint ready',
     description: 'POST to this endpoint to run cleanup job',

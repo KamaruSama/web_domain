@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Lock, Key, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import NavigationBar from '@/components/NavigationBar'
 import Link from 'next/link'
-import LogoutButton from '@/components/LogoutButton'
 
 export default function ChangePasswordPage() {
   const { data: session } = useSession()
@@ -100,7 +100,7 @@ export default function ChangePasswordPage() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">กรุณาเข้าสู่ระบบ</p>
-          <Link href="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <Link href="/login" className="btn-indigo px-4 py-2 rounded-lg">
             เข้าสู่ระบบ
           </Link>
         </div>
@@ -110,37 +110,8 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Key className="w-6 h-6 mr-2 text-blue-600" />
-                เปลี่ยนรหัสผ่าน
-              </h1>
-              <p className="text-gray-600">อัปเดตรหัสผ่านของคุณ</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                หน้าแรก
-              </Link>
-              <Link href="/my-tickets" className="text-gray-600 hover:text-gray-900">
-                คำขอของฉัน
-              </Link>
-              {session.user.role === 'ADMIN' && (
-                <Link href="/admin" className="text-gray-600 hover:text-gray-900">
-                  จัดการระบบ
-                </Link>
-              )}
-              <span className="text-sm text-gray-700">
-                สวัสดี, {session.user.username}
-              </span>
-              <LogoutButton className="bg-red-600 text-white px-3 py-1 rounded" />
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation */}
+      <NavigationBar />
 
       {/* Main Content */}
       <main className="max-w-md mx-auto px-4 py-8">
@@ -267,7 +238,7 @@ export default function ChangePasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full btn-indigo py-3 px-4 rounded-lg font-medium focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'กำลังเปลี่ยนรหัสผ่าน...' : 'เปลี่ยนรหัสผ่าน'}
             </button>

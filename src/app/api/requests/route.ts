@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -48,13 +48,14 @@ export async function POST(request: NextRequest) {
       responsibleName,
       department,
       contact,
+      contactType,
       durationType,
       expiresAt
     } = body
 
     // Validate required fields
     if (!domain || !purpose || !ipAddress || !requesterName || !responsibleName || !department || !contact) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบถ้วน' }, { status: 400 })
     }
 
     // Check if domain already exists
@@ -65,10 +66,33 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingDomain) {
-      return NextResponse.json({ error: 'Domain already requested' }, { status: 400 })
+      return NextResponse.json({ error: 'โดเมนนี้ถูกขอใช้งานแล้ว' }, { status: 400 })
     }
 
-    const requestData: any = {
+    // Check if IP address already exists
+    const existingIP = await prisma.domainRequest.findFirst({
+      where: {
+        ipAddress: ipAddress
+      }
+    })
+
+    if (existingIP) {
+      return NextResponse.json({ error: 'IP Address นี้ถูกใช้งานโดยโดเมนอื่นแล้ว' }, { status: 400 })
+    }
+
+    const requestData: {
+      domain: string;
+      purpose: string;
+      ipAddress: string;
+      requesterName: string;
+      responsibleName: string;
+      department: string;
+      contact: string;
+      contactType: string;
+      durationType: string;
+      userId: string;
+      expiresAt?: Date;
+    } = {
       domain: domain.toLowerCase(),
       purpose,
       ipAddress,
@@ -76,6 +100,7 @@ export async function POST(request: NextRequest) {
       responsibleName,
       department,
       contact,
+      contactType: contactType || 'EMAIL',
       durationType,
       userId: session.user.id
     }
@@ -83,7 +108,7 @@ export async function POST(request: NextRequest) {
     // Handle expiry date for temporary domains
     if (durationType === 'TEMPORARY') {
       if (!expiresAt) {
-        return NextResponse.json({ error: 'Expiry date required for temporary domains' }, { status: 400 })
+        return NextResponse.json({ error: 'กรุณาระบุวันหมดอายุสำหรับโดเมนชั่วคราว' }, { status: 400 })
       }
       requestData.expiresAt = new Date(expiresAt)
     }

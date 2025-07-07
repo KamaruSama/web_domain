@@ -10,9 +10,13 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed2": "tsx prisma/seed2.ts",
     "db:studio": "prisma studio",
-    "db:reset": "prisma db push --force-reset && npm run db:seed",
-    "cleanup": "node scripts/cleanup.js"
+    "db:reset": "prisma db push --force-reset && npm run db:seed1",
+    "db:reset2": "prisma db push --force-reset && npm run db:seed2",
+    "cleanup": "node scripts/cleanup.js",
+    "test:system": "node scripts/test-system.js",
+    "setup": "node scripts/setup.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

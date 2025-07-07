@@ -2,20 +2,39 @@
 
 import { signOut } from 'next-auth/react'
 import { LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface LogoutButtonProps {
   className?: string
 }
 
 export default function LogoutButton({ className = '' }: LogoutButtonProps) {
+  const router = useRouter()
+  
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' })
+    try {
+      // ลบ session แล้ว redirect manually
+      await signOut({ redirect: false })
+      
+      // Force redirect ไปหน้าแรกของ domain ปัจจุบัน
+      if (typeof window !== 'undefined') {
+        window.location.href = window.location.origin
+      } else {
+        router.push('/')
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Fallback: redirect ไปหน้าแรกโดยตรง
+      if (typeof window !== 'undefined') {
+        window.location.href = window.location.origin
+      }
+    }
   }
 
   return (
     <button
       onClick={handleLogout}
-      className={`flex items-center text-red-600 hover:text-red-700 transition-colors ${className}`}
+      className={`flex items-center justify-center transition-colors ${className}`}
     >
       <LogOut className="w-4 h-4 mr-1" />
       ออกจากระบบ
